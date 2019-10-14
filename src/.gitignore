@@ -1,0 +1,6 @@
+/target/
+out/
+.settings/
+.project
+.classpath
+build.xml
