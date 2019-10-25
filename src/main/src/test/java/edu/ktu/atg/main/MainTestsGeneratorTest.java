@@ -12,6 +12,7 @@ public class MainTestsGeneratorTest {
         request.setClassesDir(new String[] { "../example/target/classes" });
         request.setResultsDir("../example/src/test/java");
         request.setUseTimestampedReports(false);
+        request.setDebug(true);
         sut.generate(request);
     }
 

@@ -3,7 +3,7 @@ package edu.ktu.atg.common.executables;
 public abstract class BaseExecutable implements IExecutable {
 
     protected final String classzName;
-    protected final Class<?> classz;
+    protected final transient Class<?> classz;
     protected final String id = System.nanoTime() + "";
 
     public BaseExecutable(Class<?> classz) {

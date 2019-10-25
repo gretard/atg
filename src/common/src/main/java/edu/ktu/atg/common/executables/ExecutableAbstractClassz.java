@@ -11,9 +11,9 @@ public final class ExecutableAbstractClassz extends BaseExecutable implements IE
     }
 
     private final ExecutableAbstractMethod[] methodsToImplement;
-    private IExecutable returnValue;
-    private Constructor<?> constructor;
-    private IExecutable[] parameters;
+    private final IExecutable returnValue;
+    private final transient Constructor<?> constructor;
+    private final IExecutable[] parameters;
 
     public Constructor<?> getConstructor() {
         return constructor;

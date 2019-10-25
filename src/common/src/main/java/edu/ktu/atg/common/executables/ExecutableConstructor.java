@@ -7,7 +7,7 @@ import java.util.List;
 public final class ExecutableConstructor extends BaseExecutable implements IExecutableWithReturnValue {
 
     private final IExecutable[] parameters;
-    private final Constructor<?> constructor;
+    private final transient Constructor<?> constructor;
     private final IExecutable returnValue;
 
     public Constructor<?> getConstructor() {
@@ -27,7 +27,7 @@ public final class ExecutableConstructor extends BaseExecutable implements IExec
         for (IExecutable p : parameters) {
             params.add(p.copy());
         }
-        
+
         return new ExecutableConstructor(this.constructor, this.returnValue.copy(), params.toArray(new IExecutable[0]));
     }
 

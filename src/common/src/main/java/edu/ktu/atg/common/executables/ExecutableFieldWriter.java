@@ -5,8 +5,11 @@ import java.lang.reflect.Modifier;
 
 public final class ExecutableFieldWriter extends BaseExecutable {
 
-    private final Field field;
+    private final transient Field field;
     private final boolean isStatic;
+
+    private final IExecutable inputValue;
+    private final String name;
 
     public Field getField() {
         return field;
@@ -16,17 +19,16 @@ public final class ExecutableFieldWriter extends BaseExecutable {
         return inputValue;
     }
 
-    private final IExecutable inputValue;
-
     public ExecutableFieldWriter(Field field, IExecutable inputValue) {
         super(field.getDeclaringClass());
         this.field = field;
         this.inputValue = inputValue;
         this.isStatic = Modifier.isStatic(field.getModifiers());
+        this.name = field.getName();
     }
 
     public String getName() {
-        return field.getName();
+        return this.name;
     }
 
     @Override

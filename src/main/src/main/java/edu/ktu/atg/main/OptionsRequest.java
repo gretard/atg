@@ -75,6 +75,17 @@ public class OptionsRequest {
     @Argument(description = "Global tests execution timeout in seconds for a single class")
     private Integer timeoutGlobal = 60;
 
+    @Argument(description = "Flag whether to store intermiadiate results")
+    private boolean debug = false;
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     public static final long getTimestamp() {
         return timeStamp;
     }
@@ -119,14 +130,14 @@ public class OptionsRequest {
 
     public String getDataDir() {
         if (useTimestampedReports) {
-            return String.join(File.separator, this.baseDir, timeStamp+"", "data", "infos");
+            return String.join(File.separator, this.baseDir, timeStamp + "", "data", "infos");
         }
         return String.join(File.separator, this.baseDir, "data", "infos");
     }
 
     public String getTracesDir() {
         if (useTimestampedReports) {
-            return String.join(File.separator, this.baseDir, timeStamp+"", "data", "traces");
+            return String.join(File.separator, this.baseDir, timeStamp + "", "data", "traces");
         }
         return String.join(File.separator, this.baseDir, "data", "traces");
     }

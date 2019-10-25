@@ -1,12 +1,21 @@
 package edu.ktu.atg.generator.operators;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
+import edu.ktu.atg.common.executables.ExecutableAbstractClassz;
+import edu.ktu.atg.common.executables.ExecutableAbstractMethod;
+import edu.ktu.atg.common.executables.ExecutableArray;
+import edu.ktu.atg.common.executables.ExecutableConstructor;
 import edu.ktu.atg.common.executables.ExecutableFieldObserver;
 import edu.ktu.atg.common.executables.ExecutableFieldWriter;
+import edu.ktu.atg.common.executables.ExecutableInterface;
+import edu.ktu.atg.common.executables.ExecutableMethod;
 import edu.ktu.atg.common.executables.ExecutableSequence;
 import edu.ktu.atg.common.executables.ExecutableValue;
 import edu.ktu.atg.common.executables.IExecutable;
@@ -27,20 +36,8 @@ public class ValuesVisitor implements IVisitor<Object> {
 
     }
 
-    private DefinedValue getValue(IExecutable item) {
-        return this.initialData.getDefinedValues().getOrDefault(item.getId(), DefinedValue.createExecutable(item));
-    }
-
     public List<CandidateSolution> getData() {
         List<CandidateSolution> outData = new LinkedList<>();
-
-        this.solution.data.getExecutedPairs().forEach(pair -> {
-            try {
-                pair.getItem().accept(pair.getRoot(), this);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        });
         data.forEach(i -> {
             CandidateSolution sol = new CandidateSolution();
             sol.data = i;
@@ -48,6 +45,191 @@ public class ValuesVisitor implements IVisitor<Object> {
             outData.add(sol);
         });
         return outData;
+    }
+
+    public ValuesVisitor work() {
+        this.solution.data.getExecutedPairs().forEach(pair -> {
+            try {
+                pair.getItem().accept(pair.getRoot(), this);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        });
+        return this;
+    }
+
+    public void innerExecute(IExecutable root, IExecutable item) throws Throwable {
+        item.accept(root, this);
+    }
+
+    @Override
+    public Object visit(ExecutableValue item, IExecutable root) throws Throwable {
+        ValueType type = item.getType();
+        if (type == ValueType.COMPLEX) {
+            return null;
+        }
+        DefinedValue value = initialData.getDefinedValue(item);
+
+        String s = value.getValue() != null ? value.getValue().toString() : "0";
+
+        switch (type) {
+        case STRING:
+            for (int i = 0; i < 10; i++) {
+                data.add(initialData.copy()
+                        .defineValue(DefinedValue.createFixed(item, RandomStringUtils.random(5, true, true))));
+            }
+            if (s.length() > 1) {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, s.substring(1))));
+                data.add(
+                        initialData.copy().defineValue(DefinedValue.createFixed(item, s.substring(0, s.length() - 1))));
+            }
+            break;
+        case BYTE:
+            getNumbers(Byte.parseByte(s)).stream().map(n -> n.byteValue()).distinct().forEach(n -> {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
+            });
+            break;
+        case ENUM:
+            for (Object enumConstant : item.getClassz().getEnumConstants()) {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, enumConstant)));
+            }
+            break;
+        case COMPLEX:
+            break;
+        case BOOLEAN:
+            data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, Boolean.TRUE)));
+            data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, Boolean.FALSE)));
+            break;
+        case DOUBLE:
+            getNumbers(Double.parseDouble(s)).stream().map(n -> n.doubleValue()).distinct().forEach(n -> {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
+            });
+            break;
+        case INT:
+            getNumbers(Integer.parseInt(s)).stream().map(n -> n.intValue()).distinct().forEach(n -> {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
+            });
+            break;
+        case LONG:
+            getNumbers(Long.parseLong(s)).stream().map(n -> n.longValue()).distinct().forEach(n -> {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
+            });
+            break;
+        case FLOAT:
+            getNumbers(Float.parseFloat(s)).stream().map(n -> n.floatValue()).distinct().forEach(n -> {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
+            });
+            break;
+        case SHORT:
+            getNumbers(Short.parseShort(s)).stream().map(n -> n.shortValue()).distinct().forEach(n -> {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
+            });
+            break;
+        case CHAR:
+            getNumbers(Integer.parseInt(s)).stream().map(n -> n.intValue()).distinct().forEach(n -> {
+                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, (char) n.intValue())));
+            });
+        default:
+            break;
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableConstructor item, IExecutable root) throws Throwable {
+        for (IExecutable param : item.getParameters()) {
+            innerExecute(item, param);
+        }
+        if (!isRoot(item)) {
+            data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableArray item, IExecutable root) throws Throwable {
+        data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
+
+        // empty array
+        data.add(initialData.copy().defineValue(DefinedValue.createExecutableArr(item)));
+
+        DefinedValue value = initialData.getDefinedValue(item);
+        if (value.getChildren().length > 0) {
+
+            {
+                // remove one child
+                List<IExecutable> children = new LinkedList<IExecutable>(Arrays.asList(value.getChildren()));
+                children.remove(0);
+                data.add(initialData.copy().defineValue(DefinedValue.createExecutableArr(item, children)));
+            }
+            {
+                // add child
+                List<IExecutable> children = new LinkedList<IExecutable>(Arrays.asList(value.getChildren()));
+                children.add(value.getChildren()[0].copy());
+                data.add(initialData.copy().defineValue(DefinedValue.createExecutableArr(item, children)));
+            }
+        } else {
+            // add item with a single child
+            data.add(initialData.copy().defineValue(DefinedValue.createExecutableArr(item, item.copyChild())));
+        }
+
+        // visit children
+        for (IExecutable child : value.getChildren()) {
+            innerExecute(item, child);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableInterface item, IExecutable root) throws Throwable {
+        for (IExecutable method : item.getMethodsToImplement()) {
+            innerExecute(item, method);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableAbstractMethod item, IExecutable root) throws Throwable {
+        innerExecute(item, item.getReturnValue());
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableAbstractClassz item, IExecutable root) throws Throwable {
+        for (IExecutable method : item.getMethodsToImplement()) {
+            innerExecute(item, method);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableMethod item, IExecutable root) throws Throwable {
+        for (IExecutable param : item.getParameters()) {
+            innerExecute(item, param);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableFieldWriter item, IExecutable root) throws Throwable {
+        data.add(initialData.copy().defineValue(DefinedValue.createSkip(item)));
+        innerExecute(item, item.getInputValue());
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableFieldObserver item, IExecutable root) throws Throwable {
+        return null;
+    }
+
+    @Override
+    public Object visit(ExecutableSequence item, IExecutable root) throws Throwable {
+        return null;
+    }
+
+    private boolean isRoot(IExecutable item) {
+
+        return this.solution.sequence != null && this.solution.sequence.getRoot() == item;
     }
 
     private static Set<Number> getNumbers(Number initial) {
@@ -105,80 +287,5 @@ public class ValuesVisitor implements IVisitor<Object> {
         }
         return numbers;
 
-    }
-
-    @Override
-    public Object visit(ExecutableValue item, IExecutable root) throws Throwable {
-        ValueType type = item.getType();
-        DefinedValue value = getValue(item);
-        if (type == ValueType.ENUM || type == ValueType.COMPLEX || type == ValueType.STRING
-                || type == ValueType.BOOLEAN) {
-            return null;
-        }
-        String s = value.getValue() != null ? value.getValue().toString() : "0";
-
-        switch (type) {
-        case BYTE:
-            getNumbers(Byte.parseByte(s)).stream().map(n -> n.byteValue()).distinct().forEach(n -> {
-                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
-            });
-            break;
-        case COMPLEX:
-            break;
-        case BOOLEAN:
-            data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, Boolean.TRUE)));
-            data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, Boolean.FALSE)));
-            break;
-        case DOUBLE:
-            getNumbers(Double.parseDouble(s)).stream().map(n -> n.doubleValue()).distinct().forEach(n -> {
-                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
-            });
-            break;
-        case INT:
-            getNumbers(Integer.parseInt(s)).stream().map(n -> n.intValue()).distinct().forEach(n -> {
-                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
-            });
-            break;
-        case LONG:
-            getNumbers(Long.parseLong(s)).stream().map(n -> n.longValue()).distinct().forEach(n -> {
-                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
-            });
-            break;
-        case FLOAT:
-            getNumbers(Float.parseFloat(s)).stream().map(n -> n.floatValue()).distinct().forEach(n -> {
-                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
-            });
-            break;
-        case SHORT:
-            getNumbers(Short.parseShort(s)).stream().map(n -> n.shortValue()).distinct().forEach(n -> {
-                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, n)));
-            });
-            break;
-        case CHAR:
-            getNumbers(Integer.parseInt(s)).stream().map(n -> n.intValue()).distinct().forEach(n -> {
-                data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, (char) n.intValue())));
-            });
-        default:
-            break;
-        }
-        return null;
-    }
-
-    @Override
-    public Object visit(ExecutableFieldWriter item, IExecutable root) throws Throwable {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Object visit(ExecutableFieldObserver item, IExecutable root) throws Throwable {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Object visit(ExecutableSequence item, IExecutable root) throws Throwable {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

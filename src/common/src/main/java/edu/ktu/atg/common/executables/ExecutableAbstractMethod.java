@@ -7,7 +7,7 @@ import java.util.List;
 public final class ExecutableAbstractMethod extends BaseExecutable implements IExecutableWithReturnValue {
 
     private final IExecutable[] parameters;
-    private final Method method;
+    private final transient Method method;
     private final IExecutable returnValue;
 
     public IExecutable getReturnValue() {
@@ -46,7 +46,7 @@ public final class ExecutableAbstractMethod extends BaseExecutable implements IE
     public Method getMethod() {
         return method;
     }
-    
+
     public int getModifiers() {
         return this.method.getModifiers();
     }

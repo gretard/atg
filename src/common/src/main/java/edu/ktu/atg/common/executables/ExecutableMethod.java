@@ -8,9 +8,10 @@ import java.util.List;
 public final class ExecutableMethod extends BaseExecutable implements IExecutableWithReturnValue {
 
     private final IExecutable[] parameters;
-    private final Method method;
+    private final transient Method method;
     private final IExecutable returnValue;
     private final boolean isStatic;
+    private final String name;
 
     public IExecutable getReturnValue() {
         return returnValue;
@@ -22,6 +23,7 @@ public final class ExecutableMethod extends BaseExecutable implements IExecutabl
         this.returnValue = returnValue;
         this.parameters = parameters;
         this.isStatic = Modifier.isStatic(method.getModifiers());
+        this.name = method.getName();
     }
 
     @Override
@@ -39,7 +41,7 @@ public final class ExecutableMethod extends BaseExecutable implements IExecutabl
     }
 
     public String getName() {
-        return this.method.getName();
+        return this.name;
     }
 
     public IExecutable[] getParameters() {

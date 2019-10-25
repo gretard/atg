@@ -4,9 +4,9 @@ public class ArrayCalculatorAtgTest {
 
     @org.junit.Test()
     public final void test0() throws java.lang.Throwable {
-        final int[] sut_0 = new int[] { 0, 0, 0 };
+        final int[] sut_0 = new int[] { -1, 0, 0 };
         final int sut_4 = edu.ktu.atg.example.ArrayCalculator.sum(sut_0);
-        org.junit.Assert.assertEquals(0, sut_4);
+        org.junit.Assert.assertEquals(-1, sut_4);
     }
 
     @org.junit.Test()

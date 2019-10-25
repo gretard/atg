@@ -13,5 +13,5 @@ public class CandidateSolution {
         return data;
     }
 
-    public SolutionExecutionData data;
+    public SolutionExecutionData data = new SolutionExecutionData();
 }

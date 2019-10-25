@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.execution.models.DefinedValue;
 import edu.ktu.atg.common.execution.models.ExecutablePair;
 import edu.ktu.atg.common.execution.models.ResultValue;
@@ -44,6 +45,10 @@ public class SolutionExecutionData {
         return definedValues;
     }
 
+    public DefinedValue getDefinedValue(IExecutable item) {
+        return this.definedValues.getOrDefault(item.getId(), DefinedValue.createExecutable(item));
+    }
+
     private final Map<String, List<ResultValue>> results = new HashMap<>();
 
     public Map<String, List<ResultValue>> getResults() {
@@ -73,6 +78,7 @@ public class SolutionExecutionData {
     }
 
     private final List<Throwable> exceptionsThrown = new LinkedList<>();
+
     public List<Throwable> getExceptionsThrown() {
         return exceptionsThrown;
     }

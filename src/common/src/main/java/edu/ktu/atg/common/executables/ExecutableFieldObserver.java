@@ -5,9 +5,10 @@ import java.lang.reflect.Modifier;
 
 public final class ExecutableFieldObserver extends BaseExecutable implements IExecutableWithReturnValue {
 
-    private final Field field;
+    private final transient Field field;
     private final boolean isStatic;
     private final IExecutable returnValue;
+    private final String name;
 
     public IExecutable getReturnValue() {
         return returnValue;
@@ -18,6 +19,7 @@ public final class ExecutableFieldObserver extends BaseExecutable implements IEx
         this.field = field;
         this.returnValue = returnValue;
         this.isStatic = Modifier.isStatic(field.getModifiers());
+        this.name = field.getName();
     }
 
     @Override
@@ -26,7 +28,7 @@ public final class ExecutableFieldObserver extends BaseExecutable implements IEx
     }
 
     public String getName() {
-        return field.getName();
+        return this.name;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package edu.ktu.atg.common.execution.models;
 
+import java.util.List;
+
 import edu.ktu.atg.common.executables.IExecutable;
 
 public class DefinedValue {
@@ -7,7 +9,8 @@ public class DefinedValue {
         EXECUTABLE, REF, FIXED, SKIP, ARRAY;
     }
 
-    private IExecutable[] children;
+    private IExecutable[] children = new IExecutable[0];
+
     public IExecutable[] getChildren() {
         return children;
     }
@@ -57,13 +60,23 @@ public class DefinedValue {
         value.state = ValueState.EXECUTABLE;
         return value;
     }
-    public static DefinedValue createExecutableArr(IExecutable item, IExecutable...children) {
+
+    public static DefinedValue createExecutableArr(IExecutable item, IExecutable... children) {
         DefinedValue value = new DefinedValue();
         value.item = item;
         value.state = ValueState.ARRAY;
         value.children = children;
         return value;
     }
+
+    public static DefinedValue createExecutableArr(IExecutable item, List<IExecutable> children) {
+        DefinedValue value = new DefinedValue();
+        value.item = item;
+        value.state = ValueState.ARRAY;
+        value.children = children.toArray(new IExecutable[0]);
+        return value;
+    }
+
     public static DefinedValue createFixed(IExecutable main, Object obj) {
         DefinedValue value = new DefinedValue();
         value.item = main;

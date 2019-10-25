@@ -12,7 +12,7 @@ public class MutateOperator implements IOperator {
 
         List<CandidateSolution> newSolutions = new LinkedList<>();
         solutions.forEach(sol -> {
-            newSolutions.addAll(new ValuesVisitor(sol).getData());
+            newSolutions.addAll(new ValuesVisitor(sol).work().getData());
         });
         return newSolutions;
 

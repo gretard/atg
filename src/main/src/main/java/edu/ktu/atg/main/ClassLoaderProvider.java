@@ -6,32 +6,18 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-
 public class ClassLoaderProvider {
     public ClassLoader getLoader(OptionsRequest request) {
         final List<URL> urls = new ArrayList<>();
-        File resourcesDir = new File(request.getInstrumentedClassesDir());
-        resourcesDir.mkdirs();
-        for (String x : request.getClassesDir()) {
-            try {
-                File f = new File(x);
+        try {
+            File resourcesDir = new File(request.getInstrumentedClassesDir()).getCanonicalFile().getAbsoluteFile();
+            urls.add(resourcesDir.toURI().toURL());
+            for (String s : request.getLibs()) {
+                File f = new File(s);
                 if (!f.exists()) {
                     continue;
                 }
-              //  FileUtils.copyDirectory(f, resourcesDir);
-                FileUtils.copyDirectory(f, resourcesDir, pathname -> !pathname.getName().endsWith(".class"));
-                
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-            
-        }
-
-        try {
-            urls.add(resourcesDir.toURI().toURL());
-            for (String s : request.getLibs()) {
-                urls.add(new File(s).toURI().toURL());
+                urls.add(f.toURI().toURL());
             }
         } catch (Throwable e) {
             e.printStackTrace();

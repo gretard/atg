@@ -33,8 +33,9 @@ public class GaTestsGenerator {
         List<CandidateSolution> population = classContext.getChromosomes();
         List<CandidateSolution> archive = new LinkedList<>();
         int itemsToSample = 10;
+        System.out.println("Generating: "+info.getName());
         MutateOperator op = new MutateOperator();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             execute(population);
             population.forEach(k -> {
                 goal.evalute(k);
@@ -46,6 +47,7 @@ public class GaTestsGenerator {
             population = op.mutate(population);
 
         }
+        System.out.println("Done: "+info.getName());
         List<PopulationData> data = new ArrayList<>();
         PopulationData main = new PopulationData();
         main.info = info;
@@ -75,7 +77,7 @@ public class GaTestsGenerator {
 
             } catch (Throwable e) {
                 trace.getExceptionsThrown().add(e);
-                e.printStackTrace();
+             //   e.printStackTrace();
             } finally {
                 MultiMonitor.INSTANCE.fill(trace);
             }
