@@ -6,7 +6,7 @@ import java.util.Map;
 import edu.ktu.atg.common.executables.ExecutableSequence;
 import edu.ktu.atg.common.models.ClasszInfo;
 
-public class PopulationData {
+public class GenerationData {
 
     public ClasszInfo info;
 

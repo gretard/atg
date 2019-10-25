@@ -31,7 +31,7 @@ import edu.ktu.atg.common.executables.ExecutableVoid;
 import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.executables.IExecutableWithReturnValue;
 import edu.ktu.atg.common.executables.ValueType;
-import edu.ktu.atg.common.execution.PopulationData;
+import edu.ktu.atg.common.execution.GenerationData;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.execution.models.ResultValue;
 import edu.ktu.atg.common.execution.models.ResultValue.CheckType;
@@ -39,7 +39,7 @@ import edu.ktu.atg.common.models.ClasszInfo;
 
 public class JunitTestsGenerator {
 
-    public CompilationUnit generate(PopulationData data) {
+    public CompilationUnit generate(GenerationData data) {
         final ClasszInfo ci = data.getInfo();
         final CompilationUnit cu = new CompilationUnit();
         cu.setPackageDeclaration(ci.getPackageName());

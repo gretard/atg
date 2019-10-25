@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import edu.ktu.atg.common.executables.ExecutableSequence;
 import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.execution.CandidateSolution;
-import edu.ktu.atg.common.execution.PopulationData;
+import edu.ktu.atg.common.execution.GenerationData;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.goals.GoalsProvider;
 import edu.ktu.atg.common.goals.IGoal;
@@ -23,7 +23,7 @@ public class GaTestsGenerator {
     private final SequencesProvider sequencesProvider = new SequencesProvider();
     private final GoalsProvider provider = new GoalsProvider();
 
-    public List<PopulationData> generate(ClasszInfo info, Object context) throws Throwable {
+    public List<GenerationData> generate(ClasszInfo info, Object context) throws Throwable {
 
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         String classzName = info.getName();
@@ -48,8 +48,8 @@ public class GaTestsGenerator {
 
         }
         System.out.println("Done: "+info.getName());
-        List<PopulationData> data = new ArrayList<>();
-        PopulationData main = new PopulationData();
+        List<GenerationData> data = new ArrayList<>();
+        GenerationData main = new GenerationData();
         main.info = info;
         data.add(main);
         goal.getBestSolutions().forEach(s -> {

@@ -6,7 +6,7 @@ import java.util.List;
 import edu.ktu.atg.common.executables.ExecutableSequence;
 import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.execution.CandidateSolution;
-import edu.ktu.atg.common.execution.PopulationData;
+import edu.ktu.atg.common.execution.GenerationData;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.models.ClasszInfo;
 import edu.ktu.atg.common.monitors.MultiMonitor;
@@ -16,9 +16,9 @@ public class SimpleTestsGenerator2 {
 
     private final SequencesProvider sequencesProvider = new SequencesProvider();
 
-    public List<PopulationData> generate(ClasszInfo info, Object context) throws Throwable {
-        List<PopulationData> data = new ArrayList<>();
-        PopulationData main = new PopulationData();
+    public List<GenerationData> generate(ClasszInfo info, Object context) throws Throwable {
+        List<GenerationData> data = new ArrayList<>();
+        GenerationData main = new GenerationData();
         main.info = info;
         data.add(main);
 

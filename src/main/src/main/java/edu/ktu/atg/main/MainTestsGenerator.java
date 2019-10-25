@@ -14,7 +14,7 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import edu.ktu.atg.common.execution.PopulationData;
+import edu.ktu.atg.common.execution.GenerationData;
 import edu.ktu.atg.common.models.ClasszInfo;
 import edu.ktu.atg.generator.GaTestsGenerator;
 import edu.ktu.atg.outputter.OuputGenerator;
@@ -38,7 +38,7 @@ public class MainTestsGenerator {
         Method m = generator.getMethod("generate", ClasszInfo.class, Object.class);
         for (Entry<String, ClasszInfo> data : classes.entrySet()) {
             @SuppressWarnings("unchecked")
-            List<PopulationData> results = (List<PopulationData>) m.invoke(generatorObj, data.getValue(), request);
+            List<GenerationData> results = (List<GenerationData>) m.invoke(generatorObj, data.getValue(), request);
             if (request.isDebug()) {
                 System.out.println("SAVING");
                 FileUtils.write(new File(request.getTracesDir(), data.getKey() + ".json"), gson.toJson(results),

@@ -14,7 +14,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.TypeDeclaration;
 
-import edu.ktu.atg.common.execution.PopulationData;
+import edu.ktu.atg.common.execution.GenerationData;
 
 public final class OuputGenerator {
 
@@ -22,8 +22,8 @@ public final class OuputGenerator {
 
     private final JunitTestsGenerator generator = new JunitTestsGenerator();
 
-    public void generate(List<PopulationData> items, String outDir) {
-        for (final PopulationData data : items) {
+    public void generate(List<GenerationData> items, String outDir) {
+        for (final GenerationData data : items) {
             try {
                 final CompilationUnit cu = generator.generate(data);
                 final NodeList<TypeDeclaration<?>> types = cu.getTypes();
