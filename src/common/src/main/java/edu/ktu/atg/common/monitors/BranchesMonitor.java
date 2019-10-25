@@ -52,8 +52,18 @@ public enum BranchesMonitor implements IBaseMonitor {
             return "BranchInfo [methodUniqueName=" + name + ", no=" + no + ", distance=" + distance + "]";
         }
 
-        private String name;
-        private int no;
+        public BranchInfo() {
+
+        }
+
+        public BranchInfo(String name, int no, double distance) {
+            this.name = name;
+            this.no = no;
+            this.distance = distance;
+        }
+
+        public String name;
+        public int no;
 
         public String getName() {
             return name;
@@ -79,8 +89,17 @@ public enum BranchesMonitor implements IBaseMonitor {
             return no;
         }
 
-        private String name;
-        private int no;
+        public String name;
+        public int no;
+
+        public BranchHit() {
+
+        }
+
+        public BranchHit(String name, int no) {
+            this.name = name;
+            this.no = no;
+        }
     }
 
     public static double calculateDistance(final Object o1, final Object o2) {
@@ -105,7 +124,7 @@ public enum BranchesMonitor implements IBaseMonitor {
             Boolean b2 = (Boolean) o2;
             return Math.abs(b1.compareTo(b2));
         }
-        
+
         if (o1 instanceof CharSequence && o2 instanceof CharSequence) {
             CharSequence s1 = (CharSequence) o1;
             CharSequence s2 = (CharSequence) o2;

@@ -8,7 +8,7 @@ import org.junit.Test;
 public class DistanceCheckTypeTest {
 
     @Test
-    public void testMatches() {
+    public void testMatchesHitMax() {
         DistanceCheckType type = DistanceCheckType.HITMAX;
         Assert.assertTrue(type.matches(type.initialValue, 10));
         Assert.assertTrue(type.matches(10, 11));
@@ -17,12 +17,11 @@ public class DistanceCheckTypeTest {
     }
     
     @Test
-    public void testMatches2() {
+    public void testMatchesUnHitMin() {
         DistanceCheckType type = DistanceCheckType.UNHITMIN;
         Assert.assertTrue(type.matches(type.initialValue, 10));
         Assert.assertTrue(type.matches(10, 6));
         Assert.assertFalse(type.matches(10, 19));
-
     }
     
 
