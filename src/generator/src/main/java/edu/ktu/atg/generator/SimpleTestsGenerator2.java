@@ -31,7 +31,7 @@ public class SimpleTestsGenerator2 {
             ExecutableSequence s = entry.getSequence();
             SolutionExecutionData trace = entry.getData();
             MultiMonitor.INSTANCE.clear();
-            InstantiatingVisitor visitor = new InstantiatingVisitor(trace);
+            InstantiatingVisitor visitor = new InstantiatingVisitor(trace, loader);
             try {
                 IExecutable root = s.getRoot();
                 visitor.execute(root, null);

@@ -42,7 +42,7 @@ public class GaTestsGenerator {
         data.solutionsToCheck.addAll(population);
         ExecutorService ex = Executors.newWorkStealingPool();
         ex.submit(Generator.create(data));
-        ex.submit(Executor.create(data));
+        ex.submit(Executor.create(data, loader));
         ex.submit(Evaluator.create(goal, data));
         Thread.sleep(5000);
         ex.shutdown();

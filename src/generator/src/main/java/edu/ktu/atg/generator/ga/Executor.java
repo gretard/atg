@@ -17,17 +17,19 @@ public class Executor {
 
     private Solutions data;
     private long count = 0;
+    private ClassLoader loader;
 
-    public Executor(Solutions data) {
+    public Executor(Solutions data, ClassLoader loader) {
         this.data = data;
+        this.loader = loader;
     }
 
-    public static Runnable create(Solutions data) {
+    public static Runnable create(Solutions data, ClassLoader loader) {
         return new Runnable() {
 
             @Override
             public void run() {
-                Executor e = new Executor(data);
+                Executor e = new Executor(data, loader);
                 try {
                     e.start();
                 } catch (Throwable e1) {
@@ -88,11 +90,11 @@ public class Executor {
         System.out.println("Executed: " + count + " " + noop+" "+total);
     }
 
-    private final static void execute(final CandidateSolution solution) {
+    private final void execute(final CandidateSolution solution) {
         final ExecutableSequence s = solution.getSequence();
         final SolutionExecutionData trace = solution.getData();
         MultiMonitor.INSTANCE.clear();
-        final InstantiatingVisitor visitor = new InstantiatingVisitor(trace);
+        final InstantiatingVisitor visitor = new InstantiatingVisitor(trace, loader);
         try {
             final IExecutable root = s.getRoot();
             visitor.execute(root, null);

@@ -40,18 +40,28 @@ public class InstantiatingVisitor implements IVisitor<Object> {
     private final Map<String, DefinedValue> values;
     private final Map<String, List<ResultValue>> results;
 
-    
-    
+    private final ClassLoader loader;
+
+    public InstantiatingVisitor(SolutionExecutionData trace, ClassLoader loader) {
+        this.loader = loader;
+        this.values = trace.getDefinedValues();
+        this.pairs = trace.getExecutedPairs();
+        this.results = trace.getResults();
+    }
+
     public InstantiatingVisitor(SolutionExecutionData trace) {
         this.values = trace.getDefinedValues();
         this.pairs = trace.getExecutedPairs();
         this.results = trace.getResults();
+        this.loader = this.getClass().getClassLoader();
     }
 
     public InstantiatingVisitor() {
         this.values = new HashMap<>();
         this.pairs = new LinkedList<>();
         this.results = new HashMap<>();
+        this.loader = this.getClass().getClassLoader();
+
     }
 
     public Map<String, Object> getCache() {
@@ -120,7 +130,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             arguments.add(value);
         }
         Builder<?> buddy = mockMethods(item, this, item.getMethodsToImplement());
-        Class<?> dynamicType = buddy.make().load(Thread.currentThread().getContextClassLoader()).getLoaded();
+        Class<?> dynamicType = buddy.make().load(loader).getLoaded();
 
         return dynamicType.getConstructor(item.getConstructor().getParameterTypes()).newInstance(arguments.toArray());
 
@@ -150,7 +160,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
     @Override
     public Object visit(final ExecutableInterface item, IExecutable root) throws Throwable {
         Builder<?> buddy = mockMethods(item, this, item.getMethodsToImplement());
-        Class<?> dynamicType = buddy.make().load(this.getClass().getClassLoader()).getLoaded();
+        Class<?> dynamicType = buddy.make().load(this.loader).getLoaded();
         return dynamicType.getConstructor().newInstance();
     }
 
