@@ -24,7 +24,7 @@ public class MainTestsGenerator {
     private final ClassLoaderProvider classLoaderProvider = new ClassLoaderProvider();
     private final OuputGenerator outputGenerator = new OuputGenerator();
     private final TempDirInitializer initializer = new TempDirInitializer();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().serializeSpecialFloatingPointValues().create();
 
     public void generate(OptionsRequest request) throws Throwable {
         initializer.initialize(request);

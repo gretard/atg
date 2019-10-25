@@ -43,10 +43,15 @@ public enum BranchesMonitor implements IBaseMonitor {
         info.name = methodUniqueName;
         info.no = no;
         info.distance = calculateDistance(left, right);
+        info.left = left;
+        info.right = right;
         this.branchesCalled.add(info);
     }
 
     public static class BranchInfo {
+        public Object right;
+        public Object left;
+
         @Override
         public String toString() {
             return "BranchInfo [methodUniqueName=" + name + ", no=" + no + ", distance=" + distance + "]";
@@ -74,6 +79,9 @@ public enum BranchesMonitor implements IBaseMonitor {
         }
 
         public double getDistance() {
+            if (distance == Double.POSITIVE_INFINITY) {
+                return Double.MAX_VALUE;
+            }
             return distance;
         }
 

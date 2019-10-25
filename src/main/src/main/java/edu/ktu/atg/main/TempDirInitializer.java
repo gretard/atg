@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 public class TempDirInitializer {
     public void initialize(OptionsRequest request) throws IOException {
         File resourcesDir = new File(request.getInstrumentedClassesDir()).getCanonicalFile().getAbsoluteFile();
+        FileUtils.deleteDirectory(resourcesDir);
         resourcesDir.mkdirs();
         for (String x : request.getClassesDir()) {
             try {
@@ -15,6 +16,7 @@ public class TempDirInitializer {
                 if (!f.exists()) {
                     continue;
                 }
+                System.out.println("Copying.. "+f+" "+resourcesDir);
                 FileUtils.copyDirectory(f, resourcesDir);
             } catch (Throwable e) {
                 e.printStackTrace();

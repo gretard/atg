@@ -8,4 +8,6 @@ public interface IGoal {
     public boolean evalute(CandidateSolution data);
 
     public Collection<CandidateSolution> getBestSolutions();
+
+    public boolean isMet();
 }

@@ -39,4 +39,9 @@ public class StatementExecutedGoal implements IGoal {
         return solutions;
     }
 
+    @Override
+    public boolean isMet() {
+        return this.solutions.size() >= 1;
+    }
+
 }

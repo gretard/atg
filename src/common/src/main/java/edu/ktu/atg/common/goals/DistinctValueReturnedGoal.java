@@ -1,8 +1,10 @@
 package edu.ktu.atg.common.goals;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import edu.ktu.atg.common.execution.CandidateSolution;
@@ -13,16 +15,14 @@ import edu.ktu.atg.common.monitors.ValuesMonitor.HitStatement;
 
 public class DistinctValueReturnedGoal implements IGoal {
 
-    private final List<CandidateSolution> solutions = new LinkedList<>();
     private final ExecutableStatement statement;
     private DistanceCheckType type;
-    private Object value = 0;
-    private double distance;
+    private int minNoOfSolutions = 3;
+    private final Map<String, CandidateSolution> values = new HashMap<>();
 
     public DistinctValueReturnedGoal(DistanceCheckType type, ExecutableStatement statement) {
         this.type = type;
         this.statement = statement;
-        this.distance = type.initialValue;
 
     }
 
@@ -30,52 +30,39 @@ public class DistinctValueReturnedGoal implements IGoal {
     public boolean evalute(CandidateSolution solution) {
         SolutionExecutionData data = solution.getData();
 
-        Object firstNonNullValue = null;
-        Object firstNonNullStringValue = null;
+      
         List<HitStatement> statementsToCheck = new LinkedList<>();
         for (HitStatement hitStatement : data.getStatementWithValues()) {
             if (hitStatement.getNo() == this.statement.getNo()
                     && Objects.equals(hitStatement.getName(), this.statement.getName())) {
                 statementsToCheck.add(hitStatement);
-                if (firstNonNullStringValue == null && hitStatement.getValueStringRepresentation() != null) {
-                    firstNonNullStringValue = hitStatement.getValueStringRepresentation();
-                }
-                if (firstNonNullValue == null && hitStatement.getValue() != null) {
-                    firstNonNullValue = hitStatement.getValue();
-                }
             }
         }
         if (statementsToCheck.isEmpty()) {
             return false;
         }
-
-        if (value == null && firstNonNullValue != null) {
-            value = firstNonNullValue;
-        }
-        if (value == null && firstNonNullStringValue != null) {
-            value = firstNonNullStringValue;
-        }
         boolean anyFound = false;
         for (HitStatement statement : statementsToCheck) {
-            Object v2 = statement.getValue() == null ? statement.getValueStringRepresentation() : statement.getValue();
-            double d = BranchesMonitor.calculateDistance(value, v2);
-
-            if (type.matches(distance, d)) {
-                anyFound = true;
-                value = v2;
-                distance = type.returnBetter(distance, d);
+            String v2 = statement.getValue() == null ? statement.getValueStringRepresentation()
+                    : statement.getValue().toString();
+            if (values.containsKey(v2)) {
+                continue;
             }
+            values.put(v2, solution);
+            anyFound = true;
         }
-        if (anyFound) {
-            solutions.clear();
-            solutions.add(solution);
-        }
+
         return anyFound;
     }
 
     @Override
     public Collection<CandidateSolution> getBestSolutions() {
-        return solutions;
+        return values.values();
+    }
+
+    @Override
+    public boolean isMet() {
+        return this.values.size() > this.minNoOfSolutions;
     }
 
 }

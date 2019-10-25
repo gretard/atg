@@ -26,7 +26,6 @@ public class GoalsProvider {
             }
             if (statement.getType() == StatementTypes.RETURN) {
                 secondary.add(new DistinctValueReturnedGoal(DistanceCheckType.HITMAX, statement));
-                secondary.add(new DistinctValueReturnedGoal(DistanceCheckType.HITMIN, statement));
                 continue;
             }
 
@@ -34,6 +33,7 @@ public class GoalsProvider {
         }
         primary.add(new UnexpectedExceptionsThrownGoal(throwsStatements.toArray(new ExecutableStatement[0])));
 
+        System.out.println(primary.size()+" "+secondary.size());
         return new GoalsEvaluator(primary, secondary);
     }
 }

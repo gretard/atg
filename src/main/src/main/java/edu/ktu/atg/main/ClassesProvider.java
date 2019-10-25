@@ -25,6 +25,10 @@ public class ClassesProvider {
                 .forEach(c -> {
                     classes.add(c.getName());
                 });
+        if (request.getClasses().length > 0) {
+            List<String> t = Arrays.asList(request.getClasses());
+            classes.removeIf(p -> !t.contains(p));
+        }
         return classes;
     }
 }

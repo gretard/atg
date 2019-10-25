@@ -32,29 +32,35 @@ public class BranchHitGoal implements IGoal {
         List<BranchInfo> branchesToCheck = new LinkedList<>();
         List<BranchHit> hitBranches = new LinkedList<>();
         double d = distance;
+
         for (BranchInfo branch : data.getBranchesCalled()) {
             if (branch.getNo() == this.branchToHit.getNo() && Objects.equals(branch.getName(), branchToHit.getName())) {
-                if (type.matches(this.distance, branch.distance)) {
-                    branchesToCheck.add(branch);
-                    d = type.returnBetter(this.distance, branch.distance);
-                }
+
+                branchesToCheck.add(branch);
             }
         }
 
+      
         for (BranchHit branch : data.getBranchesHit()) {
             if (branch.getNo() == this.branchToHit.getNo() && Objects.equals(branch.getName(), branchToHit.getName())) {
                 hitBranches.add(branch);
-                break;
             }
         }
-
-        if (!type.needsHit && !branchesToCheck.isEmpty() && hitBranches.isEmpty()) {
+        boolean found = false;
+      //  System.out.println("0000SIZE: " + type + " " + distance + " " + hitBranches.size() + " " + branchesToCheck.size());
+        for (BranchInfo bi : branchesToCheck) {
+            if (type.matches(distance, bi.getDistance())) {
+                found = true;
+                d = type.returnBetter(d, bi.getDistance());
+            }
+        }
+        if (!type.needsHit && found && hitBranches.isEmpty()) {
             this.distance = d;
             selected.clear();
             selected.add(solution);
             return true;
         }
-        if (type.needsHit && !branchesToCheck.isEmpty() && !hitBranches.isEmpty()) {
+        if (type.needsHit && found && !hitBranches.isEmpty()) {
             this.distance = d;
             selected.clear();
             selected.add(solution);
@@ -68,5 +74,10 @@ public class BranchHitGoal implements IGoal {
     @Override
     public Collection<CandidateSolution> getBestSolutions() {
         return selected;
+    }
+
+    @Override
+    public boolean isMet() {
+        return !this.selected.isEmpty();
     }
 }

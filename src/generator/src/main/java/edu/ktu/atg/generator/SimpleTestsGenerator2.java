@@ -43,11 +43,11 @@ public class SimpleTestsGenerator2 {
                 }
 
             } catch (Throwable e) {
-                trace.getExceptionsThrown().add(e);
+              //  trace.getExceptionsThrown().add(e);
                 e.printStackTrace();
             } finally {
                 MultiMonitor.INSTANCE.fill(trace);
-                main.getSolutions().put(s, trace);
+                main.getSolutions().add(entry);
             }
 
         }

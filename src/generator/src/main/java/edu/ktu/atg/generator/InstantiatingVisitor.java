@@ -150,7 +150,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
     @Override
     public Object visit(final ExecutableInterface item, IExecutable root) throws Throwable {
         Builder<?> buddy = mockMethods(item, this, item.getMethodsToImplement());
-        Class<?> dynamicType = buddy.make().load(Thread.currentThread().getContextClassLoader()).getLoaded();
+        Class<?> dynamicType = buddy.make().load(this.getClass().getClassLoader()).getLoaded();
         return dynamicType.getConstructor().newInstance();
     }
 
@@ -225,7 +225,6 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             Object value = execute(p, item);
             values.add(value);
         }
-
         return item.getMethod().invoke(rootValue, values.toArray());
     }
 

@@ -31,6 +31,7 @@ import edu.ktu.atg.common.executables.ExecutableVoid;
 import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.executables.IExecutableWithReturnValue;
 import edu.ktu.atg.common.executables.ValueType;
+import edu.ktu.atg.common.execution.CandidateSolution;
 import edu.ktu.atg.common.execution.GenerationData;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.execution.models.ResultValue;
@@ -47,8 +48,8 @@ public class JunitTestsGenerator {
         final ClassOrInterfaceDeclaration type = cu.addClass(newName);
 
         int counter = 0;
-        for (Entry<ExecutableSequence, SolutionExecutionData> solutionData : data.getSolutions().entrySet()) {
-            SolutionExecutionData executionData = solutionData.getValue();
+        for (CandidateSolution solutionData : data.getSolutions()) {
+            SolutionExecutionData executionData = solutionData.data;
             OutputContext context = work(executionData);
 
             final BlockStmt block = new BlockStmt();

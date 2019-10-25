@@ -1,6 +1,8 @@
 package edu.ktu.atg.common.execution;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import edu.ktu.atg.common.executables.ExecutableSequence;
@@ -10,9 +12,9 @@ public class GenerationData {
 
     public ClasszInfo info;
 
-    private final Map<ExecutableSequence, SolutionExecutionData> solutions = new HashMap<>();
+    private final List<CandidateSolution> solutions = new LinkedList<>();
 
-    public Map<ExecutableSequence, SolutionExecutionData> getSolutions() {
+    public List<CandidateSolution> getSolutions() {
         return solutions;
     }
 

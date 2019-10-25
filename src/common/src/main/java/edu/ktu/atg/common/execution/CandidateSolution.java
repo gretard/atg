@@ -9,6 +9,13 @@ public class CandidateSolution {
         return sequence;
     }
 
+    public CandidateSolution copy() {
+        CandidateSolution sol = new CandidateSolution();
+        sol.sequence = this.sequence;
+        sol.data = this.data;
+        return sol;
+    }
+
     public SolutionExecutionData getData() {
         return data;
     }

@@ -11,7 +11,15 @@ public class ClassLoaderProvider {
         final List<URL> urls = new ArrayList<>();
         try {
             File resourcesDir = new File(request.getInstrumentedClassesDir()).getCanonicalFile().getAbsoluteFile();
+            System.out.println(resourcesDir);
             urls.add(resourcesDir.toURI().toURL());
+            for (String s : request.getClassesDir()) {
+                File f = new File(s);
+                if (!f.exists()) {
+                    continue;
+                }
+                urls.add(f.toURI().toURL());
+            }
             for (String s : request.getLibs()) {
                 File f = new File(s);
                 if (!f.exists()) {

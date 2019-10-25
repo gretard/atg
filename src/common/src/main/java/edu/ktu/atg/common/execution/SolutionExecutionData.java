@@ -10,6 +10,7 @@ import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.execution.models.DefinedValue;
 import edu.ktu.atg.common.execution.models.ExecutablePair;
 import edu.ktu.atg.common.execution.models.ResultValue;
+import edu.ktu.atg.common.execution.models.ThrownException;
 import edu.ktu.atg.common.monitors.BranchesMonitor.BranchHit;
 import edu.ktu.atg.common.monitors.BranchesMonitor.BranchInfo;
 import edu.ktu.atg.common.monitors.ValuesMonitor.HitStatement;
@@ -77,9 +78,9 @@ public class SolutionExecutionData {
         return statementWithValues;
     }
 
-    private final List<Throwable> exceptionsThrown = new LinkedList<>();
+    private final List<ThrownException> exceptionsThrown = new LinkedList<>();
 
-    public List<Throwable> getExceptionsThrown() {
+    public List<ThrownException> getExceptionsThrown() {
         return exceptionsThrown;
     }
 

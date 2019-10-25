@@ -19,15 +19,24 @@ public class GoalsEvaluator implements IGoal {
 
     @Override
     public boolean evalute(CandidateSolution data) {
+        if (data == null) {
+            return false;
+        }
         boolean anyFound = false;
         for (IGoal goal : primary) {
-            if (goal.evalute(data)) {
+            boolean r = goal.evalute(data);
+           // System.out.println(data+" "+goal.getClass().getSimpleName()+" ss selected"+r);
+            if (r) {
+
                 anyFound = true;
             }
         }
         for (IGoal goal : secondary) {
-            if (anyFound || goal.getBestSolutions().isEmpty()) {
-                if (goal.evalute(data)) {
+            if (anyFound || !goal.isMet()) {
+                boolean r = goal.evalute(data);
+               
+                if (r) {
+
                     anyFound = true;
                 }
             }
@@ -46,5 +55,11 @@ public class GoalsEvaluator implements IGoal {
             set.addAll(goal.getBestSolutions());
         }
         return set;
+    }
+
+    @Override
+    public boolean isMet() {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

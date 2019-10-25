@@ -148,7 +148,7 @@ public class ValuesVisitor implements IVisitor<Object> {
 
     @Override
     public Object visit(ExecutableArray item, IExecutable root) throws Throwable {
-        data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
+      //  data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
 
         // empty array
         data.add(initialData.copy().defineValue(DefinedValue.createExecutableArr(item)));
