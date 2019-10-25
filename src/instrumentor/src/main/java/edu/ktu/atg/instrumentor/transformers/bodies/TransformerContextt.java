@@ -10,11 +10,11 @@ import soot.Body;
 
 public class TransformerContextt {
 
-	public MethodInfo methodInfo;
+    public MethodInfo methodInfo;
 
-	public ClasszInfo classzInfo;
+    public ClasszInfo classzInfo;
 
-	public Body body;
+    public Body body;
 
-	public final List<Transformation> transformations = new ArrayList<Transformation>();
+    public final List<Transformation> transformations = new ArrayList<>();
 }

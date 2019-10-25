@@ -7,9 +7,9 @@ import org.junit.Test;
 
 import com.google.common.base.Objects;
 
+import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.models.ClasszInfo;
 import edu.ktu.atg.common.models.ExecutableStatement;
-import edu.ktu.atg.common.models.ExecutionResults;
 import edu.ktu.atg.common.models.MethodBranch;
 import edu.ktu.atg.common.monitors.BranchesMonitor.BranchInfo;
 import edu.ktu.atg.common.monitors.MultiMonitor;
@@ -36,7 +36,7 @@ public class ExampleITCase {
             c.getMethod("divide", double.class).invoke(x, 0);
             c.getMethod("divide", double.class).invoke(x, 100);
         }
-        ExecutionResults results = new ExecutionResults();
+        SolutionExecutionData results = new SolutionExecutionData();
         MultiMonitor.INSTANCE.fill(results);
 
         ClasszInfo ci = response.getClasses().get(className);
@@ -44,13 +44,13 @@ public class ExampleITCase {
         for (ExecutableStatement statement : ci.getStatements()) {
             boolean executed = false;
             for (HitStatement hitStatement : results.getStatements()) {
-                if (Objects.equal(statement.getMethodName(), hitStatement.getName())
+                if (Objects.equal(statement.getName(), hitStatement.getName())
                         && statement.getNo() == hitStatement.getNo()) {
                     executed = true;
                     break;
                 }
             }
-            System.out.println("Statement: " + statement.getMethodName() + " " + statement.getExpression()
+            System.out.println("Statement: " + statement.getName() + " " + statement.getExpression()
                     + " of type: " + statement.getType() + " executed: " + executed);
         }
         for (MethodBranch statement : ci.getAllbranches()) {

@@ -27,7 +27,7 @@ public class SootInstrumenterTest {
 		for (MethodInfo mi : ci.getMethods().values()) {
 			System.out.println(mi.getName());
 			for (ExecutableStatement st : mi.getStatements()) {
-				System.out.println(st.getMethodName() + " " + st.getExpression() + " " + st.getType());
+				System.out.println(st.getName() + " " + st.getExpression() + " " + st.getType());
 			}
 			for (MethodBranch st : mi.getBranches()) {
 				System.out.println(st.getExpression() + " " + st.getLeftType() + " " + st.getRightType());

@@ -18,63 +18,63 @@ import soot.validation.ValidationException;
 
 public class SootBodiesTransformer extends BodyTransformer {
 
-	private final TransformersProvider transformersProvider;
+    private final TransformersProvider transformersProvider;
 
-	private final Map<String, ClasszInfo> infos = new HashMap<String, ClasszInfo>();
+    private final Map<String, ClasszInfo> infos = new HashMap<>();
 
-	public SootBodiesTransformer(TransformersProvider transformersProvider) {
-		this.transformersProvider = transformersProvider;
-	}
+    public SootBodiesTransformer(TransformersProvider transformersProvider) {
+        this.transformersProvider = transformersProvider;
+    }
 
-	@Override
-	protected void internalTransform(Body body, String phaseName, Map<String, String> options) {
-		if (body.getMethod().isAbstract()) {
-			return;
-		}
-		final String methodName = body.getMethod().getSignature();
-		final String className = body.getMethod().getDeclaringClass().getName();
+    @Override
+    protected void internalTransform(Body body, String phaseName, Map<String, String> options) {
+        if (body.getMethod().isAbstract()) {
+            return;
+        }
+        final String methodName = body.getMethod().getSignature();
+        final String className = body.getMethod().getDeclaringClass().getName();
 
-		final ClasszInfo ci = this.getInfos().getOrDefault(className, new ClasszInfo(className));
-		final MethodInfo mi = ci.getMethods().getOrDefault(methodName, new MethodInfo(methodName));
-		ci.getMethods().put(methodName, mi);
-		infos.put(className, ci);
+        final ClasszInfo ci = this.getInfos().getOrDefault(className, new ClasszInfo(className));
+        final MethodInfo mi = ci.getMethods().getOrDefault(methodName, new MethodInfo(methodName));
+        ci.getMethods().put(methodName, mi);
+        infos.put(className, ci);
 
-		final PatchingChain<Unit> units = body.getUnits();
-		final Iterator<Unit> stmtIt = units.snapshotIterator();
+        final PatchingChain<Unit> units = body.getUnits();
+        final Iterator<Unit> stmtIt = units.snapshotIterator();
 
-		final TransformerContextt context = new TransformerContextt();
-		context.classzInfo = ci;
-		context.methodInfo = mi;
-		context.body = body;
+        final TransformerContextt context = new TransformerContextt();
+        context.classzInfo = ci;
+        context.methodInfo = mi;
+        context.body = body;
 
-		final Transformer[] transformers = transformersProvider.getTransformers();
+        final Transformer[] transformers = transformersProvider.getTransformers();
 
-		Unit current = null;
-		Unit prev = null;
-		int no = 0;
+        Unit current = null;
+        Unit prev = null;
+        int no = 0;
 
-		while (stmtIt.hasNext()) {
-			current = stmtIt.next();
-			no++;
+        while (stmtIt.hasNext()) {
+            current = stmtIt.next();
+            no++;
 
-			for (final Transformer transformer : transformers) {
-				transformer.fillTransformations(context, current, prev, no);
-			}
+            for (final Transformer transformer : transformers) {
+                transformer.fillTransformations(context, current, prev, no);
+            }
 
-			prev = current;
+            prev = current;
 
-		}
+        }
 
-		for (final Transformation transformation : context.transformations) {
-			transformation.apply(units);
-		}
+        for (final Transformation transformation : context.transformations) {
+            transformation.apply(units);
+        }
 
-		final List<ValidationException> exceptionList = new ArrayList<>();
-		body.validate(exceptionList);
+        final List<ValidationException> exceptionList = new ArrayList<>();
+        body.validate(exceptionList);
 
-	}
+    }
 
-	public Map<String, ClasszInfo> getInfos() {
-		return infos;
-	}
+    public Map<String, ClasszInfo> getInfos() {
+        return infos;
+    }
 }

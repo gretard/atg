@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.ktu.atg.common.models.ExecutionResults;
+import edu.ktu.atg.common.execution.SolutionExecutionData;
 
 public enum BranchesMonitor implements IBaseMonitor {
     INSTANCE;
@@ -26,7 +26,7 @@ public enum BranchesMonitor implements IBaseMonitor {
         return branchesHit;
     }
 
-    public void fill(ExecutionResults results) {
+    public void fill(SolutionExecutionData results) {
         results.getBranchesCalled().addAll(this.branchesCalled);
         results.getBranchesHit().addAll(this.branchesHit);
     }
@@ -100,18 +100,17 @@ public enum BranchesMonitor implements IBaseMonitor {
             }
         }
 
-        if (o1 instanceof CharSequence && o2 instanceof CharSequence) {
-            CharSequence s1 = (CharSequence) o1;
-            CharSequence s2 = (CharSequence) o2;
-            return calculateFromChars(s1, s2);
-        }
-
         if (o1 instanceof Boolean && o2 instanceof Boolean) {
             Boolean b1 = (Boolean) o1;
             Boolean b2 = (Boolean) o2;
             return Math.abs(b1.compareTo(b2));
         }
-
+        
+        if (o1 instanceof CharSequence && o2 instanceof CharSequence) {
+            CharSequence s1 = (CharSequence) o1;
+            CharSequence s2 = (CharSequence) o2;
+            return calculateFromChars(s1, s2);
+        }
         return Double.MAX_VALUE;
 
     }

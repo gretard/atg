@@ -14,24 +14,30 @@ public class ExecutableStatement implements Serializable {
     private final int no;
     private final String[] context;
     private final int uniqueNo;
+    private int line;
 
     public static enum StatementTypes {
         RETURN, RETURNVOID, GOTO, SWITCH, BRANCH, THROWS, OTHER
     }
 
     public ExecutableStatement(String methodName, String expression, StatementTypes type, int no, int uniqueNo,
-            String... context) {
+            int line, String... context) {
         this.methodName = methodName;
         this.expression = expression;
         this.type = type;
         this.no = no;
         this.uniqueNo = uniqueNo;
         this.context = context;
+        this.line = line;
 
     }
 
-    public String getMethodName() {
+    public String getName() {
         return methodName;
+    }
+
+    public int getLine() {
+        return line;
     }
 
     public String getExpression() {

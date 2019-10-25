@@ -4,22 +4,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.helpers.DumpUtilities;
-import edu.ktu.atg.common.models.ExecutionResults;
 
 public enum ValuesMonitor implements IBaseMonitor {
     INSTANCE;
 
-    private List<HitStatement> statements = new LinkedList<HitStatement>();
+    private List<HitStatement> statements = new LinkedList<>();
 
-    private List<HitStatement> statementWithValues = new LinkedList<HitStatement>();
+    private List<HitStatement> statementWithValues = new LinkedList<>();
 
     public void clear() {
-        statements = new LinkedList<ValuesMonitor.HitStatement>();
-        statementWithValues = new LinkedList<ValuesMonitor.HitStatement>();
+        statements = new LinkedList<>();
+        statementWithValues = new LinkedList<>();
     }
 
-    public void fill(ExecutionResults results) {
+    public void fill(SolutionExecutionData results) {
         results.getStatements().addAll(this.statements);
         results.getStatementWithValues().addAll(this.statementWithValues);
     }
@@ -37,6 +37,10 @@ public enum ValuesMonitor implements IBaseMonitor {
         statement.name = methodUniqueName;
         statement.no = no;
         statement.uniqueNo = uniqueNo;
+
+        if (value instanceof Number || value instanceof Boolean || value instanceof CharSequence) {
+            statement.value = value;
+        }
         statement.valueStringRepresentation = DumpUtilities.dump(value, 2);
         statement.address = Objects.hashCode(value);
         statementWithValues.add(statement);
@@ -71,6 +75,11 @@ public enum ValuesMonitor implements IBaseMonitor {
         private int uniqueNo;
 
         private String valueStringRepresentation;
+        private Object value;
+
+        public Object getValue() {
+            return value;
+        }
 
         private int address;
     }

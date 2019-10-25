@@ -6,3 +6,15 @@ This class contains example of instrumenting edu.ktu.atg.example.Calculator clas
 ```mvn compile -f example/pom.xml```
 
 Then you can run **edu.ktu.atg.main.ExampleITCase** test case which tracks which statements and branches have been executed.
+
+Building:
+
+```
+mvn clean install
+```
+
+```
+mvn -Dcheckstyle.maxAllowedViolations=99999999 clean install com.github.spotbugs:spotbugs-maven-plugin:3.1.12.2:spotbugs checkstyle:check sonar:sonar
+```
+
+

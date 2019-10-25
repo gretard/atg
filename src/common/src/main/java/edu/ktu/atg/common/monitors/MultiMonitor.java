@@ -1,6 +1,6 @@
 package edu.ktu.atg.common.monitors;
 
-import edu.ktu.atg.common.models.ExecutionResults;
+import edu.ktu.atg.common.execution.SolutionExecutionData;
 
 public enum MultiMonitor implements IBaseMonitor {
 	INSTANCE;
@@ -14,7 +14,7 @@ public enum MultiMonitor implements IBaseMonitor {
 	}
 
 	@Override
-	public void fill(ExecutionResults results) {
+	public void fill(SolutionExecutionData results) {
 		for (IBaseMonitor monitor : monitors) {
 			monitor.fill(results);
 		}

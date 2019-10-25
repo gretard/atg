@@ -1,9 +1,9 @@
 package edu.ktu.atg.common.monitors;
 
-import edu.ktu.atg.common.models.ExecutionResults;
+import edu.ktu.atg.common.execution.SolutionExecutionData;
 
 public interface IBaseMonitor {
 	void clear();
 
-	void fill(ExecutionResults results);
+	void fill(SolutionExecutionData results);
 }

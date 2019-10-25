@@ -28,124 +28,129 @@ import soot.options.Options;
 
 public class SootInstrumenter {
 
-	private final TransformersProvider transformersProvider;
+    private final TransformersProvider transformersProvider;
 
-	public SootInstrumenter(TransformersProvider transformersProvider) {
-		this.transformersProvider = transformersProvider;
-	}
+    public SootInstrumenter(TransformersProvider transformersProvider) {
+        this.transformersProvider = transformersProvider;
+    }
 
-	public SootInstrumenter() {
-		this(new DefaultTransformersProvider());
-	}
+    public SootInstrumenter() {
+        this(new DefaultTransformersProvider());
+    }
 
-	public static class SootInstrumenterRequest {
+    public static class SootInstrumenterRequest {
 
-		private String baseDir = "./out";
-		public String outputFormat = "c";
+        public String outputFormat = "c";
+        public String instrumentedClassesDir = "./out/classes";
+        public String dataDir = "./out/data";
 
-		public String getOutputFormat() {
-			return outputFormat;
-		}
+        public String getOutputFormat() {
+            return outputFormat;
+        }
 
-		private final List<String> classes = new ArrayList<String>();
-		private final List<String> supportingPaths = new ArrayList<String>();
+        private final List<String> classes = new ArrayList<>();
+        private final List<String> supportingPaths = new ArrayList<>();
 
-		public List<String> getSupportingPaths() {
-			return supportingPaths;
-		}
+        public List<String> getSupportingPaths() {
+            return supportingPaths;
+        }
 
-		public File getTempDir() {
-			return new File(baseDir, "classes");
-		}
+        public File getTempDir() {
+            return new File(instrumentedClassesDir);
+        }
 
-		public File getDataDir() {
-			return new File(baseDir, "data");
-		}
+        public File getDataDir() {
+            return new File(dataDir);
+        }
 
-		public List<String> getClasses() {
-			return classes;
-		}
+        public List<String> getClasses() {
+            return classes;
+        }
 
-	}
+    }
 
-	public static class SootInstrumenterResponse {
+    public static class SootInstrumenterResponse {
 
-		private final Map<String, ClasszInfo> classes = new HashMap<String, ClasszInfo>();
+        private final Map<String, ClasszInfo> classes = new HashMap<>();
 
-		public Map<String, ClasszInfo> getClasses() {
-			return classes;
-		}
-	}
+        public Map<String, ClasszInfo> getClasses() {
+            return classes;
+        }
+    }
 
-	private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-	private static final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
-			.serializeSpecialFloatingPointValues().create();
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
+            .serializeSpecialFloatingPointValues().create();
 
-	public SootInstrumenterResponse instrument(SootInstrumenterRequest request) {
-		File tempDir = request.getTempDir();
-		File dataDir = request.getDataDir();
+    public SootInstrumenterResponse instrument(SootInstrumenterRequest request) {
+        File tempDir = request.getTempDir();
+        File dataDir = request.getDataDir();
 
-		final List<String> selectedClasses = request.getClasses();
+        final List<String> selectedClasses = request.getClasses();
 
-		soot.G.reset();
-		final StringBuffer sb = new StringBuffer();
-		sb.append(System.getProperty("java.class.path") + File.pathSeparator);
+        soot.G.reset();
+        final StringBuffer sb = new StringBuffer();
+        sb.append(System.getProperty("java.class.path") + File.pathSeparator);
 
-		for (final String x : request.getSupportingPaths()) {
-			String t = x;
-			if (t.endsWith("/*")) {
-				t = t.replace("/*", "");
-			}
-			sb.append(File.pathSeparator);
-			sb.append(t);
-		}
+        for (final String x : request.getSupportingPaths()) {
 
-		Options.v().set_keep_line_number(true);
-		Options.v().set_verbose(true);
-		Options.v().set_allow_phantom_refs(true);
-		Options.v().set_output_dir(tempDir.getAbsolutePath());
-		Options.v().set_ignore_resolution_errors(true);
-		final List<String> options = new ArrayList<String>();
-		options.add("-cp");
-		options.add(sb.toString());
-		options.add("--java-version");
-		options.add("8");
-		options.add("-f");
+            String t = x;
+            if (t.endsWith("/*")) {
+                t = t.replace("/*", "");
+            }
+            File f = new File(t);
+            if (f.exists()) {
+                sb.append(File.pathSeparator);
+                sb.append(t);
+            }
+        }
 
-		options.add(request.getOutputFormat());
-		options.add("-p");
-		options.add("jb");
-		options.add("use-original-names:true");
+        Options.v().set_keep_line_number(true);
+        Options.v().set_verbose(true);
+        Options.v().set_allow_phantom_refs(true);
+        Options.v().set_output_dir(tempDir.getAbsolutePath());
+        Options.v().set_ignore_resolution_errors(true);
+        final List<String> options = new ArrayList<String>();
+        options.add("-cp");
+        options.add(sb.toString());
+        options.add("--java-version");
+        options.add("8");
+        options.add("-f");
 
-		options.addAll(selectedClasses);
-		final Pack pack = PackManager.v().getPack("jtp");
+        options.add(request.getOutputFormat());
+        options.add("-p");
+        options.add("jb");
+        options.add("use-original-names:true");
 
-		SootBodiesTransformer transformer = new SootBodiesTransformer(transformersProvider);
+        options.addAll(selectedClasses);
+        final Pack pack = PackManager.v().getPack("jtp");
 
-		pack.add(new Transform("jtp.atg", transformer));
-		PhaseOptions.v().setPhaseOption("jtp.atg", "on");
+        SootBodiesTransformer transformer = new SootBodiesTransformer(transformersProvider);
 
-		final String[] arguments = options.toArray(new String[0]);
-		logger.info("Starting soot transformation with arguments: " + Arrays.toString(arguments));
-		soot.Main.main(arguments);
+        pack.add(new Transform("jtp.atg", transformer));
+        PhaseOptions.v().setPhaseOption("jtp.atg", "on");
 
-		final Map<String, ClasszInfo> ciClasses = transformer.getInfos();
+        final String[] arguments = options.toArray(new String[0]);
+        logger.info("Starting soot transformation with arguments: " + Arrays.toString(arguments));
+        soot.Main.main(arguments);
 
-		for (final Entry<String, ClasszInfo> entry : ciClasses.entrySet()) {
-			final String key = entry.getKey();
-			if (!selectedClasses.contains(key)) {
-				continue;
-			}
-			try {
-				FileUtils.write(new File(dataDir, String.join("", key, ".json")), gson.toJson(entry.getValue()),
-						Charset.defaultCharset());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		final SootInstrumenterResponse response = new SootInstrumenterResponse();
-		response.classes.putAll(ciClasses);
-		return response;
-	}
+        final Map<String, ClasszInfo> ciClasses = transformer.getInfos();
+
+        for (final Entry<String, ClasszInfo> entry : ciClasses.entrySet()) {
+            final String key = entry.getKey();
+            if (!selectedClasses.contains(key)) {
+                continue;
+            }
+            try {
+                FileUtils.write(new File(dataDir, String.join("", key, ".json")), gson.toJson(entry.getValue()),
+                        Charset.defaultCharset());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        final SootInstrumenterResponse response = new SootInstrumenterResponse();
+        response.classes.putAll(ciClasses);
+        return response;
+    }
 }

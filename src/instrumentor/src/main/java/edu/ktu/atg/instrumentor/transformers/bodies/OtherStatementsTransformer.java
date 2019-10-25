@@ -63,7 +63,7 @@ public final class OtherStatementsTransformer extends BaseTransformer implements
 
 			context.transformations.add(transformation);
 			context.methodInfo.getStatements()
-					.add(new ExecutableStatement(methodName, current.toString(), type, no, 0));
+					.add(new ExecutableStatement(methodName, current.toString(), type, no, 0, current.getJavaSourceStartLineNumber()));
 
 		}
 

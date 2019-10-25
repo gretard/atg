@@ -62,7 +62,7 @@ public final class ReturnValueTransformer extends BaseTransformer implements Tra
 
 		context.transformations.add(transformation);
 		context.methodInfo.getStatements()
-				.add(new ExecutableStatement(methodName, current.toString(), StatementTypes.RETURN, no, 0));
+				.add(new ExecutableStatement(methodName, current.toString(), StatementTypes.RETURN, no, 0, current.getJavaSourceStartLineNumber()));
 	}
 
 }
