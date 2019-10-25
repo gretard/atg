@@ -61,6 +61,10 @@ public class JunitTestsGenerator {
 
             final NormalAnnotationExpr nae = new NormalAnnotationExpr();
             nae.setName(new Name("org.junit.Test"));
+            if (!executionData.getExceptionsThrown().isEmpty()) {
+                String e = Throwable.class.getName();
+                nae.addPair("expected", e + ".class");
+            }
             main2.addAnnotation(nae);
             main2.setBody(block);
             main2.getAllContainedComments().clear();
@@ -137,7 +141,7 @@ public class JunitTestsGenerator {
 
             IExecutable item = pair.getItem();
 
-            if (!executionData.getResults().containsKey(item.getId()) ||!generated.contains(item.getId())) {
+            if (!executionData.getResults().containsKey(item.getId()) || !generated.contains(item.getId())) {
                 return;
             }
             List<ResultValue> vals = executionData.getResults().get(item.getId());

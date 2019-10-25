@@ -9,7 +9,7 @@ public class MainTestsGeneratorTest {
     @Test
     public void testGenerate() throws Throwable {
         OptionsRequest request = new OptionsRequest();
-        request.setClasses(new String[] { "edu.ktu.atg.example.SampleWithInterface"});
+      //  request.setClasses(new String[] { "edu.ktu.atg.example.SampleWithInterface"});
         request.setClassesDir(new String[] { "../example/target/classes" });
         request.setResultsDir("../example/src/test/java");
         request.setUseTimestampedReports(false);

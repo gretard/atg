@@ -84,27 +84,33 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             return null;
         }
         Object returnValue = null;
-        if (definedValue.getState() == ValueState.REF) {
-            returnValue = execute(definedValue.getRef(), root);
+       
+        try {
+            IExecutable returnValueDefinition = null;
+            if (definedValue.getState() == ValueState.REF) {
+                returnValue = execute(definedValue.getRef(), root);
 
-        } else {
-            returnValue = definedValue.getState() == ValueState.FIXED ? definedValue.getValue()
-                    : item.accept(root, this);
+            } else {
+                returnValue = definedValue.getState() == ValueState.FIXED ? definedValue.getValue()
+                        : item.accept(root, this);
+            }
+
+            if (item instanceof IExecutableWithReturnValue) {
+                returnValueDefinition = ((IExecutableWithReturnValue) item).getReturnValue();
+                this.cache.put(returnValueDefinition.getId(), returnValue);
+                List<ResultValue> results = ResultValue.fromValue(returnValueDefinition, returnValue);
+                List<ResultValue> savedResults = this.results.getOrDefault(returnValueDefinition.getId(),
+                        new LinkedList<ResultValue>());
+                savedResults.addAll(results);
+                this.results.put(item.getId(), savedResults);
+                pairs.add(ExecutablePair.ok(root, item, returnValueDefinition));
+                cache.put(item.getId(), returnValue);
+            }
+        } catch (Exception e) {
+            pairs.add(ExecutablePair.ko(root, item));
+            throw e;
         }
 
-        IExecutable returnValueDefinition = null;
-
-        if (item instanceof IExecutableWithReturnValue) {
-            returnValueDefinition = ((IExecutableWithReturnValue) item).getReturnValue();
-            this.cache.put(returnValueDefinition.getId(), returnValue);
-            List<ResultValue> results = ResultValue.fromValue(returnValueDefinition, returnValue);
-            List<ResultValue> savedResults = this.results.getOrDefault(returnValueDefinition.getId(),
-                    new LinkedList<ResultValue>());
-            savedResults.addAll(results);
-            this.results.put(item.getId(), savedResults);
-        }
-        pairs.add(ExecutablePair.ok(root, item, returnValueDefinition));
-        cache.put(item.getId(), returnValue);
         return returnValue;
     }
 

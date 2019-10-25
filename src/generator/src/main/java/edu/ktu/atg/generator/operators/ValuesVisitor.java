@@ -148,7 +148,8 @@ public class ValuesVisitor implements IVisitor<Object> {
 
     @Override
     public Object visit(ExecutableArray item, IExecutable root) throws Throwable {
-      //  data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
+        data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
+        data.add(initialData.copy().defineValue(DefinedValue.createExecutable(item)));
 
         // empty array
         data.add(initialData.copy().defineValue(DefinedValue.createExecutableArr(item)));
@@ -182,6 +183,9 @@ public class ValuesVisitor implements IVisitor<Object> {
 
     @Override
     public Object visit(ExecutableInterface item, IExecutable root) throws Throwable {
+        data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
+        data.add(initialData.copy().defineValue(DefinedValue.createExecutable(item)));
+
         for (IExecutable method : item.getMethodsToImplement()) {
             innerExecute(item, method);
         }
@@ -196,6 +200,9 @@ public class ValuesVisitor implements IVisitor<Object> {
 
     @Override
     public Object visit(ExecutableAbstractClassz item, IExecutable root) throws Throwable {
+        data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
+        data.add(initialData.copy().defineValue(DefinedValue.createExecutable(item)));
+
         for (IExecutable method : item.getMethodsToImplement()) {
             innerExecute(item, method);
         }
