@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sampullara.cli.Args;
 
+import edu.ktu.atg.common.models.OptionsRequest;
+
 /**
  * Hello world!
  *

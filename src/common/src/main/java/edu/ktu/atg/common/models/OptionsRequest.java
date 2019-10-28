@@ -1,4 +1,4 @@
-package edu.ktu.atg.main;
+package edu.ktu.atg.common.models;
 
 import java.io.File;
 
@@ -73,7 +73,40 @@ public class OptionsRequest {
     private String baseDir = "./temp";
 
     @Argument(description = "Global tests execution timeout in seconds for a single class")
-    private Integer timeoutGlobal = 60;
+    private Integer timeoutGlobal = 30;
+
+    @Argument(description = "Delta for tests execution, s")
+    private Integer timeoutDelta = 5;
+
+    public Integer getTimeoutDelta() {
+        return timeoutDelta;
+    }
+
+    public void setTimeoutDelta(Integer timeoutDelta) {
+        this.timeoutDelta = timeoutDelta;
+    }
+
+    @Argument(description = "Single candidate solution execution timeout in seconds")
+    private Integer timeoutInner = 3;
+
+    public Integer getTimeoutInner() {
+        return timeoutInner;
+    }
+
+    public void setTimeoutInner(Integer timeoutInner) {
+        this.timeoutInner = timeoutInner;
+    }
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
+    @Argument(description = "Flag which mode to use, 1 - GA, 2 - SIMPLE")
+    private Integer mode = 1;
 
     @Argument(description = "Flag whether to store intermiadiate results")
     private boolean debug = false;

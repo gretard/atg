@@ -10,15 +10,21 @@ public class ThrownException {
         return line;
     }
 
+   
+
     @Override
     public String toString() {
-        return "ThrownException [method=" + method + ", line=" + line + "]";
+        return "ThrownException [method=" + method + ", line=" + line + ", exception=" + exception + "]";
     }
 
-    private int line;
 
-    public ThrownException(String method, int line) {
+
+    private int line;
+    private String exception;
+
+    public ThrownException(String method, String exception,  int line) {
         this.method = method;
+        this.exception = exception;
         this.line = line;
         
     }

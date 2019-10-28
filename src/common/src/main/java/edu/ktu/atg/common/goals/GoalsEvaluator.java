@@ -17,6 +17,10 @@ public class GoalsEvaluator implements IGoal {
         this.secondary = secondary;
     }
 
+    public int size() {
+        return primary.size() + secondary.size();
+    }
+
     @Override
     public boolean evalute(CandidateSolution data) {
         if (data == null) {
@@ -25,7 +29,8 @@ public class GoalsEvaluator implements IGoal {
         boolean anyFound = false;
         for (IGoal goal : primary) {
             boolean r = goal.evalute(data);
-           // System.out.println(data+" "+goal.getClass().getSimpleName()+" ss selected"+r);
+            // System.out.println(data+" "+goal.getClass().getSimpleName()+" ss
+            // selected"+r);
             if (r) {
 
                 anyFound = true;
@@ -34,7 +39,7 @@ public class GoalsEvaluator implements IGoal {
         for (IGoal goal : secondary) {
             if (anyFound || !goal.isMet()) {
                 boolean r = goal.evalute(data);
-               
+
                 if (r) {
 
                     anyFound = true;

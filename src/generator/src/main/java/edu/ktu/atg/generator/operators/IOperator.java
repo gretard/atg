@@ -5,5 +5,6 @@ import java.util.List;
 import edu.ktu.atg.common.execution.CandidateSolution;
 
 public interface IOperator {
-    public List<CandidateSolution> mutate(List<CandidateSolution> solutions);
+    public IOperator work();
+    public List<CandidateSolution> getData();
 }

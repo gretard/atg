@@ -19,12 +19,20 @@ public enum ValuesMonitor implements IBaseMonitor {
         statementWithValues = new LinkedList<>();
     }
 
-    public void fill(SolutionExecutionData results) {
-        results.getStatements().addAll(this.statements);
-        results.getStatementWithValues().addAll(this.statementWithValues);
+    public synchronized void fill(SolutionExecutionData results) {
+        HitStatement[] hits = this.statements.toArray(new HitStatement[0]);
+        HitStatement[] hitsWithVals = this.statementWithValues.toArray(new HitStatement[0]);
+        for (int i = 0; i < hits.length; i++) {
+            results.getStatements().add(hits[i]);
+        }
+        for (int i = 0; i < hitsWithVals.length; i++) {
+            results.getStatementWithValues().add(hitsWithVals[i]);
+        }
+        // .addAll(this.statements);
+        // results.getStatementWithValues().addAll(this.statementWithValues);
     }
 
-    public void hit(String methodUniqueName, int no, int uniqueNo) {
+    public synchronized void hit(String methodUniqueName, int no, int uniqueNo) {
         HitStatement statement = new HitStatement();
         statement.name = methodUniqueName;
         statement.no = no;
@@ -32,7 +40,7 @@ public enum ValuesMonitor implements IBaseMonitor {
         statements.add(statement);
     }
 
-    public void hitWithValue(String methodUniqueName, int no, int uniqueNo, Object value) {
+    public synchronized void hitWithValue(String methodUniqueName, int no, int uniqueNo, Object value) {
         final HitStatement statement = new HitStatement();
         statement.name = methodUniqueName;
         statement.no = no;

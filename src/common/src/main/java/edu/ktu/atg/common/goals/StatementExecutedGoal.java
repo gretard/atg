@@ -24,6 +24,9 @@ public class StatementExecutedGoal implements IGoal {
         SolutionExecutionData data = solution.getData();
 
         for (HitStatement hitStatement : data.getStatements()) {
+            if (hitStatement == null) {
+                continue;
+            }
             if (hitStatement.getNo() == this.statement.getNo()
                     && Objects.equals(hitStatement.getName(), this.statement.getName())) {
                 solutions.clear();

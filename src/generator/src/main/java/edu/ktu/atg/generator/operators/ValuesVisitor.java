@@ -25,7 +25,7 @@ import edu.ktu.atg.common.execution.CandidateSolution;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.execution.models.DefinedValue;
 
-public class ValuesVisitor implements IVisitor<Object> {
+public class ValuesVisitor implements IOperator, IVisitor<Object> {
     private final List<SolutionExecutionData> data = new LinkedList<>();
     private SolutionExecutionData initialData;
     private CandidateSolution solution;

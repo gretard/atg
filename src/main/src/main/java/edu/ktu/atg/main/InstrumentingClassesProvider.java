@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.ktu.atg.common.models.ClasszInfo;
+import edu.ktu.atg.common.models.OptionsRequest;
 import edu.ktu.atg.instrumentor.SootInstrumenter;
 import edu.ktu.atg.instrumentor.SootInstrumenter.SootInstrumenterRequest;
 import edu.ktu.atg.instrumentor.SootInstrumenter.SootInstrumenterResponse;

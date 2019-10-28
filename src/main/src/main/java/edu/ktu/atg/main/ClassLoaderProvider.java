@@ -6,6 +6,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.ktu.atg.common.models.OptionsRequest;
+
 public class ClassLoaderProvider {
     public ClassLoader getLoader(OptionsRequest request) {
         final List<URL> urls = new ArrayList<>();

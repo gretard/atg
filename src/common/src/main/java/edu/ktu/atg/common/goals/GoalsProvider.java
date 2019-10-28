@@ -9,7 +9,7 @@ import edu.ktu.atg.common.models.ExecutableStatement.StatementTypes;
 import edu.ktu.atg.common.models.MethodBranch;
 
 public class GoalsProvider {
-    public IGoal getGoals(ClasszInfo ci) {
+    public GoalsEvaluator  getGoals(ClasszInfo ci) {
         List<IGoal> primary = new LinkedList<IGoal>();
         List<IGoal> secondary = new LinkedList<IGoal>();
         for (MethodBranch branchToHit : ci.getAllbranches()) {

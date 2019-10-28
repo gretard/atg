@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.github.baev.ClasspathScanner;
 
+import edu.ktu.atg.common.models.OptionsRequest;
 import javassist.bytecode.AccessFlag;
 
 public class ClassesProvider {

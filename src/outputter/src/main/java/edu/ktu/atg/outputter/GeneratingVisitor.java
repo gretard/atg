@@ -222,8 +222,18 @@ public class GeneratingVisitor implements IVisitor<Node>, IBaseVisitor<Node> {
 
     @Override
     public Node visit(ExecutableSequence item, IExecutable root) throws Throwable {
-        // TODO Auto-generated method stub
-        return null;
+        Node rootValue = null;
+        if (item.getRoot() != null) {
+            rootValue = innerVisit(item.getRoot(), item);
+        }
+        for (IExecutable p : item.getWriters()) {
+            innerVisit(p, item.getRoot());
+
+        }
+        for (IExecutable p : item.getObservers()) {
+            innerVisit(p, item.getRoot());
+        }
+        return rootValue;
     }
 
 }

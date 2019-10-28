@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import edu.ktu.atg.common.models.OptionsRequest;
+
 public class ClassesProviderTest {
 
     @Test

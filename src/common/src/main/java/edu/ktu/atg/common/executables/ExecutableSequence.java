@@ -45,7 +45,7 @@ public class ExecutableSequence extends BaseExecutable implements IExecutableWit
     }
 
     @Override
-    public IExecutable copy() {
+    public ExecutableSequence copy() {
 
         ExecutableSequence copy = new ExecutableSequence(classz,
                 root == null ? null : (IExecutableWithReturnValue) root.copy());

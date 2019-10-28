@@ -8,6 +8,7 @@ import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.execution.ClassesAnalyzer;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.execution.models.DefinedValue;
+import edu.ktu.atg.generator.visitors.InstantiatingVisitor;
 
 public class InstantiatingVisitorAbstractClassesTest {
 

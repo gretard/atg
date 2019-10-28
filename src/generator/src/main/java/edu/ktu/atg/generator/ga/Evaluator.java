@@ -1,29 +1,26 @@
 package edu.ktu.atg.generator.ga;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.concurrent.ThreadLocalRandom;
-
 import edu.ktu.atg.common.execution.CandidateSolution;
 import edu.ktu.atg.common.goals.IGoal;
+import edu.ktu.atg.generator.ga.stopping.IStoppingFuntion;
 
 public class Evaluator {
-    private final Solutions data;
+    private final SolutionsContext data;
     private final IGoal goal;
-    private long count = 0;
+    private IStoppingFuntion stoppingFuntion;
 
-    public Evaluator(IGoal goal, Solutions data) {
+    public Evaluator(IGoal goal, IStoppingFuntion stoppingFuntion, SolutionsContext data) {
         this.goal = goal;
+        this.stoppingFuntion = stoppingFuntion;
         this.data = data;
     }
 
-    public static Runnable create(IGoal goal, Solutions data) {
+    public static Runnable create(IGoal goal, IStoppingFuntion stoppingFuntion, SolutionsContext data) {
         return new Runnable() {
 
             @Override
             public void run() {
-                Evaluator e = new Evaluator(goal, data);
+                Evaluator e = new Evaluator(goal, stoppingFuntion, data);
                 try {
                     e.start();
                 } catch (Throwable e1) {
@@ -33,50 +30,24 @@ public class Evaluator {
         };
     }
 
-    private final LinkedList<CandidateSolution> archive = new LinkedList<>();
-    private final int maxArchiveSize = 100;
-    private final int sampleSize = 10;
-    private long noop = 0;
-
     public void start() throws Throwable {
         System.out.println("EV STARTED....");
-
-        while (!data.shouldStop()) {
-            Thread.sleep(1);
-            while (!data.executedSolutions.isEmpty() && !data.shouldStop()) {
+        while (!stoppingFuntion.shouldStop()) {
+            while (!data.executedSolutions.isEmpty() && !stoppingFuntion.shouldStop()) {
                 final CandidateSolution solution = data.executedSolutions.poll();
                 if (solution == null) {
                     continue;
                 }
-                if (archive.isEmpty() || archive.size() < maxArchiveSize) {
-                    archive.add(solution);
-                }
                 goal.evalute(solution);
-                data.evaluatedSolutions.add(solution);
-                count++;
-
-                if (ThreadLocalRandom.current().nextDouble() > 0.98 && !archive.isEmpty()) {
-                    Collections.shuffle(archive);
-                    data.evaluatedSolutions.add(archive.poll());
-                }
-                if (ThreadLocalRandom.current().nextDouble() > 0.8) {
-                    Collection<CandidateSolution> sols = goal.getBestSolutions();
-                    for (CandidateSolution s : sols) {
-                        if (!s.data.getExceptionsThrown().isEmpty()) {
-                            continue;
-                        }
-                        data.evaluatedSolutions.add(s);
-                    }
-                }
             }
-            noop++;
+            Thread.sleep(5);
         }
-        System.out.println("Left: " + data.executedSolutions.size());
         while (!data.executedSolutions.isEmpty()) {
             final CandidateSolution solution = data.executedSolutions.poll();
+            if (solution == null) {
+                continue;
+            }
             goal.evalute(solution);
-            count++;
         }
-        System.out.println("Evaluated: " + count + " " + noop);
     }
 }

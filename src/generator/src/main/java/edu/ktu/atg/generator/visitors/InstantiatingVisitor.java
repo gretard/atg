@@ -1,4 +1,4 @@
-package edu.ktu.atg.generator;
+package edu.ktu.atg.generator.visitors;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
@@ -200,19 +200,23 @@ public class InstantiatingVisitor implements IVisitor<Object> {
 
     @Override
     public Object visit(ExecutableSequence item, IExecutable root) throws Throwable {
-        Object rootValue = execute(item.getRoot(), item);
+        Object rootValue = null;
+        if (item.getRoot() != null)  {
+            rootValue = execute(item.getRoot(), item);
+        }
         for (IExecutable p : item.getWriters()) {
             try {
                 execute(p, item.getRoot());
             } catch (Throwable e) {
-                this.pairs.add(ExecutablePair.ko(root, item));
+                e.printStackTrace();
+                throw e;
             }
         }
         for (IExecutable p : item.getObservers()) {
             try {
                 execute(p, item.getRoot());
             } catch (Throwable e) {
-                this.pairs.add(ExecutablePair.ko(root, item));
+                e.printStackTrace();
             }
         }
         return rootValue;

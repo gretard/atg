@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import edu.ktu.atg.common.models.ClasszInfo;
+import edu.ktu.atg.common.models.OptionsRequest;
 import edu.ktu.atg.generator.GaTestsGenerator;
-import edu.ktu.atg.main.OptionsRequest;
 
 public class GeneratorTest {
 

@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+import edu.ktu.atg.common.models.OptionsRequest;
+
 public class TempDirInitializer {
     public void initialize(OptionsRequest request) throws IOException {
         File resourcesDir = new File(request.getInstrumentedClassesDir()).getCanonicalFile().getAbsoluteFile();

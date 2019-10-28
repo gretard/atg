@@ -26,19 +26,26 @@ public enum BranchesMonitor implements IBaseMonitor {
         return branchesHit;
     }
 
-    public void fill(SolutionExecutionData results) {
-        results.getBranchesCalled().addAll(this.branchesCalled);
-        results.getBranchesHit().addAll(this.branchesHit);
+    public synchronized void fill(SolutionExecutionData results) {
+        BranchInfo[] branchesInfo = this.branchesCalled.toArray(new BranchInfo[0]);
+        BranchHit[] branchesHit = this.branchesHit.toArray(new BranchHit[0]);
+        for (int i = 0; i < branchesInfo.length; i++) {
+            results.getBranchesCalled().add(branchesInfo[i]);
+        }
+        for (int i = 0; i < branchesHit.length; i++) {
+            results.getBranchesHit().add(branchesHit[i]);
+        }
+
     }
 
-    public void hit(String methodUniqueName, int no) {
+    public synchronized void hit(String methodUniqueName, int no) {
         final BranchHit info = new BranchHit();
         info.name = methodUniqueName;
         info.no = no;
         this.branchesHit.add(info);
     }
 
-    public void hitWithValue(String methodUniqueName, int no, Object left, Object right) {
+    public synchronized void hitWithValue(String methodUniqueName, int no, Object left, Object right) {
         final BranchInfo info = new BranchInfo();
         info.name = methodUniqueName;
         info.no = no;

@@ -7,14 +7,14 @@ public enum MultiMonitor implements IBaseMonitor {
 	private final IBaseMonitor[] monitors = { ValuesMonitor.INSTANCE, BranchesMonitor.INSTANCE };
 
 	@Override
-	public void clear() {
+	public synchronized void  clear() {
 		for (IBaseMonitor monitor : monitors) {
 			monitor.clear();
 		}
 	}
 
 	@Override
-	public void fill(SolutionExecutionData results) {
+	public synchronized void fill(SolutionExecutionData results) {
 		for (IBaseMonitor monitor : monitors) {
 			monitor.fill(results);
 		}
