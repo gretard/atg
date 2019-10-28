@@ -9,7 +9,10 @@ import edu.ktu.atg.common.models.OptionsRequest;
 
 public class TempDirInitializer {
     public void initialize(OptionsRequest request) throws IOException {
-        File resourcesDir = new File(request.getInstrumentedClassesDir()).getCanonicalFile().getAbsoluteFile();
+        File resourcesDir = request.getInstrumentedClassesDirFile();
+        if (resourcesDir.exists() && resourcesDir.listFiles().length > 0) {
+            return;
+        }
         FileUtils.deleteDirectory(resourcesDir);
         resourcesDir.mkdirs();
         for (String x : request.getClassesDir()) {
@@ -18,7 +21,6 @@ public class TempDirInitializer {
                 if (!f.exists()) {
                     continue;
                 }
-                System.out.println("Copying.. "+f+" "+resourcesDir);
                 FileUtils.copyDirectory(f, resourcesDir);
             } catch (Throwable e) {
                 e.printStackTrace();

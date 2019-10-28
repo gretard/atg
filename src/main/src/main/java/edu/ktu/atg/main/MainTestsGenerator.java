@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 
@@ -20,6 +21,8 @@ import edu.ktu.atg.generator.SimpleTestsGenerator2;
 import edu.ktu.atg.outputter.OuputGenerator;
 
 public class MainTestsGenerator {
+    private static final Logger LOGGER = Logger.getLogger(MainTestsGenerator.class.getName());
+
     private final InstrumentingClassesProvider classesProvider = new InstrumentingClassesProvider();
     private final ClassLoaderProvider classLoaderProvider = new ClassLoaderProvider();
     private final OuputGenerator outputGenerator = new OuputGenerator();
@@ -29,6 +32,10 @@ public class MainTestsGenerator {
     public void generate(OptionsRequest request) throws Throwable {
         initializer.initialize(request);
         Map<String, ClasszInfo> classes = classesProvider.get(request);
+        if (request.getMode() == 3) {
+            LOGGER.info("Finished instrumentation");
+            return;
+        }
         ClassLoader loader = classLoaderProvider.getLoader(request);
         Thread.currentThread().setContextClassLoader(loader);
         String classz = request.getMode() == 1 ? GaTestsGenerator.class.getName()

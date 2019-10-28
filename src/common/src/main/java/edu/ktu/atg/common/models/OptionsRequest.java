@@ -1,6 +1,7 @@
 package edu.ktu.atg.common.models;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.sampullara.cli.Argument;
 
@@ -105,7 +106,7 @@ public class OptionsRequest {
         this.mode = mode;
     }
 
-    @Argument(description = "Flag which mode to use, 1 - GA, 2 - SIMPLE")
+    @Argument(description = "Flag which mode to use, 1 - GA, 2 - SIMPLE, 3 - INSTRUMENT ONLY")
     private Integer mode = 1;
 
     @Argument(description = "Flag whether to store intermiadiate results")
@@ -161,6 +162,15 @@ public class OptionsRequest {
         return String.join(File.separator, this.baseDir, "classes");
     }
 
+    public File getInstrumentedClassesDirFile() throws IOException {
+        return new File(getInstrumentedClassesDir()).getCanonicalFile().getAbsoluteFile();
+
+    }
+
+    public File getDataDirFile() throws IOException {
+        return new File(getDataDir()).getCanonicalFile().getAbsoluteFile();
+
+    }
     public String getDataDir() {
         if (useTimestampedReports) {
             return String.join(File.separator, this.baseDir, timeStamp + "", "data", "infos");
