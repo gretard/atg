@@ -53,7 +53,7 @@ public class OptionsRequest {
     private String[] libs = new String[] { "./libs/", "./lib", "./dependency" };
 
     @Argument(description = "Flag whether use timeStamped output")
-    private boolean useTimestampedReports = true;
+    private Boolean useTimestampedReports = false;
 
     @Argument(alias = "c", description = "Specific classes under check, comma separated", delimiter = ",")
     private String[] classes = new String[] {};
