@@ -98,7 +98,7 @@ public class ClassesAnalyzer {
 
         if (classz.isInterface()) {
             List<ExecutableAbstractMethod> methodsToImplement = javaObjectsProvider.getAllMethods(classz).stream()
-                    .map(method -> getAbstractMethod(classz, method, level)).collect(Collectors.toList());
+                    .map(method -> getAbstractMethod(classz, method, level-1)).collect(Collectors.toList());
 
             return new ExecutableInterface(classz, ExecutableValue.complexType(classz),
                     methodsToImplement.toArray(new ExecutableAbstractMethod[0]));
@@ -107,17 +107,17 @@ public class ClassesAnalyzer {
         if (Modifier.isAbstract(classz.getModifiers())) {
             List<ExecutableAbstractMethod> methodsToImplement = javaObjectsProvider.getAllMethods(classz).stream()
                     .filter(method -> Modifier.isAbstract(method.getModifiers()))
-                    .map(method -> getAbstractMethod(classz, method, level)).collect(Collectors.toList());
+                    .map(method -> getAbstractMethod(classz, method, level-1)).collect(Collectors.toList());
             final List<Constructor<?>> constructors = javaObjectsProvider.getConstructors(rootClassz, classz);
             if (constructors.isEmpty()) {
                 return new ExecutableValue(classz, ValueType.NULL);
             }
-            final ExecutableConstructor c = getConstructor(rootClassz, constructors.get(0), level);
+            final ExecutableConstructor c = getConstructor(rootClassz, constructors.get(0), level-1);
             return new ExecutableAbstractClassz(c.getConstructor(), c.getParameters(),
                     ExecutableValue.complexType(classz), methodsToImplement.toArray(new ExecutableAbstractMethod[0]));
         }
         
-        IExecutableWithReturnValue constructor = selectConstructor(rootClassz, classz, level);
+        IExecutableWithReturnValue constructor = selectConstructor(rootClassz, classz, level-1);
         if (constructor == null) {
             if (classz.equals(rootClassz)) {
                 throw new IllegalArgumentException(
