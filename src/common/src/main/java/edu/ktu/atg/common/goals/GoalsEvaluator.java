@@ -21,6 +21,19 @@ public class GoalsEvaluator implements IGoal {
         return primary.size() + secondary.size();
     }
 
+    public String getGoalsInfo() {
+        StringBuilder sb = new StringBuilder();
+        for (IGoal p : primary) {
+            sb.append(String.format("%s - %s -%s%n", p.getClass().getSimpleName(), p.isMet(),
+                    p.getBestSolutions().size()));
+        }
+        for (IGoal p : secondary) {
+            sb.append(String.format("%s - %s -%s%n", p.getClass().getSimpleName(), p.isMet(),
+                    p.getBestSolutions().size()));
+        }
+        return sb.toString();
+    }
+
     @Override
     public boolean evalute(CandidateSolution data) {
         if (data == null) {

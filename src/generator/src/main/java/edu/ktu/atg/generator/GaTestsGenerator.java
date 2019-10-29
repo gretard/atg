@@ -63,6 +63,8 @@ public class GaTestsGenerator implements IGenerator {
                 goal.size(), population.size(), best.size()
 
         ));
+        LOGGER.info(() -> goal.getGoalsInfo());
+
         return response;
 
     }
