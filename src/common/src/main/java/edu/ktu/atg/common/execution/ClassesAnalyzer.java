@@ -12,6 +12,7 @@ import edu.ktu.atg.common.executables.ExecutableAbstractClassz;
 import edu.ktu.atg.common.executables.ExecutableAbstractMethod;
 import edu.ktu.atg.common.executables.ExecutableArray;
 import edu.ktu.atg.common.executables.ExecutableConstructor;
+import edu.ktu.atg.common.executables.ExecutableEnum;
 import edu.ktu.atg.common.executables.ExecutableFieldObserver;
 import edu.ktu.atg.common.executables.ExecutableFieldWriter;
 import edu.ktu.atg.common.executables.ExecutableInterface;
@@ -77,7 +78,7 @@ public class ClassesAnalyzer {
             return new ExecutableValue(classz, ValueType.BOOLEAN);
         }
         if (classz.isEnum()) {
-            return new ExecutableValue(classz, ValueType.ENUM);
+            return new ExecutableEnum(classz);
         }
 
         if (level <= 0) {

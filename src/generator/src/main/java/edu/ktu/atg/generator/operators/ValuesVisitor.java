@@ -13,6 +13,7 @@ import edu.ktu.atg.common.executables.ExecutableAbstractClassz;
 import edu.ktu.atg.common.executables.ExecutableAbstractMethod;
 import edu.ktu.atg.common.executables.ExecutableArray;
 import edu.ktu.atg.common.executables.ExecutableConstructor;
+import edu.ktu.atg.common.executables.ExecutableEnum;
 import edu.ktu.atg.common.executables.ExecutableFieldObserver;
 import edu.ktu.atg.common.executables.ExecutableFieldWriter;
 import edu.ktu.atg.common.executables.ExecutableInterface;
@@ -50,8 +51,8 @@ public class ValuesVisitor implements IOperator, IVisitor<Object> {
     }
 
     public ValuesVisitor work() {
-        List<ExecutablePair> pairs = new ArrayList<ExecutablePair>( this.solution.data.getExecutedPairs());
-        
+        List<ExecutablePair> pairs = new ArrayList<ExecutablePair>(this.solution.data.getExecutedPairs());
+
         pairs.forEach(pair -> {
             try {
                 pair.getItem().accept(pair.getRoot(), this);
@@ -298,5 +299,16 @@ public class ValuesVisitor implements IOperator, IVisitor<Object> {
         }
         return numbers;
 
+    }
+
+    @Override
+    public Object visit(ExecutableEnum item, IExecutable root) throws Throwable {
+        if (!isRoot(item)) {
+            data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, null)));
+        }
+        for (Object x : item.getClassz().getEnumConstants()) {
+            data.add(initialData.copy().defineValue(DefinedValue.createFixed(item, x)));
+        }
+        return null;
     }
 }

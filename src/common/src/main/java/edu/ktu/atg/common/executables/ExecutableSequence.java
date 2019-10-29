@@ -39,7 +39,7 @@ public class ExecutableSequence extends BaseExecutable implements IExecutableWit
     @Override
     public IExecutable getReturnValue() {
         if (root == null) {
-            return null;
+            return this;
         }
         return root.getReturnValue();
     }

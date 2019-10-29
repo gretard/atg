@@ -36,6 +36,9 @@ public interface IVisitor<T> {
 
     public T visit(ExecutableFieldWriter item, IExecutable root) throws Throwable;
 
+    public T visit(ExecutableEnum item, IExecutable root) throws Throwable;
+
+    
     public T visit(ExecutableFieldObserver item, IExecutable root) throws Throwable;
 
     public T visit(ExecutableSequence item, IExecutable root) throws Throwable;

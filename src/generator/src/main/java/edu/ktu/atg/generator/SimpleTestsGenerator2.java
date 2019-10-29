@@ -26,7 +26,10 @@ public class SimpleTestsGenerator2 implements IGenerator {
         String classzName = info.getName();
         Class<?> mainClass = loader.loadClass(classzName);
         ClassContext classContext = sequencesProvider.getSequences(mainClass);
+        
         List<CandidateSolution> solutions = classContext.getChromosomes();
+       
+        
         SolutionsContext solutionContext = new SolutionsContext();
         solutionContext.solutionsToCheck.addAll(solutions);
         Executor executor = new Executor(solutionContext, loader,

@@ -85,6 +85,7 @@ public final class GenerationHelper {
         if (value == null) {
             return new NullLiteralExpr();
         }
+        System.out.println(type);
         switch (type) {
         case BOOLEAN:
             return new BooleanLiteralExpr(Boolean.parseBoolean(value));
@@ -106,7 +107,10 @@ public final class GenerationHelper {
             return castTo(PrimitiveType.charType(), new IntegerLiteralExpr(((int) value.charAt(0)) + ""));
         case ENUM:
             return new NameExpr(item.getClassName() + "." + value);
+        case NULL:
+            return castTo(generateType(item), new NullLiteralExpr());
         default:
+           
             throw new IllegalArgumentException("Invalid type passed.. ");
         }
     }

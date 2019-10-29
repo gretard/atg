@@ -1,6 +1,7 @@
 package edu.ktu.atg.outputter;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.google.gson.GsonBuilder;
 
 import edu.ktu.atg.common.execution.GenerationData;
 import edu.ktu.atg.common.models.OptionsRequest;
@@ -23,8 +25,12 @@ public final class OuputGenerator {
 
     private final JunitTestsGenerator generator = new JunitTestsGenerator();
 
-    public void generate(List<GenerationData> items, OptionsRequest request) {
+    public void generate(List<GenerationData> items, OptionsRequest request) throws IOException {
         for (final GenerationData data : items) {
+            if (request.isDebug()) {
+                FileUtils.write(new File(request.getTracesDir(), data.info.getName() + "_res.json"),
+                        new GsonBuilder().setPrettyPrinting().create().toJson(data.getSolutions()));
+            }
             try {
                 final CompilationUnit cu = generator.generate(data);
                 final NodeList<TypeDeclaration<?>> types = cu.getTypes();

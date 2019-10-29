@@ -12,6 +12,7 @@ import edu.ktu.atg.common.executables.ExecutableAbstractClassz;
 import edu.ktu.atg.common.executables.ExecutableAbstractMethod;
 import edu.ktu.atg.common.executables.ExecutableArray;
 import edu.ktu.atg.common.executables.ExecutableConstructor;
+import edu.ktu.atg.common.executables.ExecutableEnum;
 import edu.ktu.atg.common.executables.ExecutableFieldObserver;
 import edu.ktu.atg.common.executables.ExecutableFieldWriter;
 import edu.ktu.atg.common.executables.ExecutableInterface;
@@ -84,7 +85,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             return null;
         }
         Object returnValue = null;
-       
+
         try {
             IExecutable returnValueDefinition = null;
             if (definedValue.getState() == ValueState.REF) {
@@ -201,14 +202,14 @@ public class InstantiatingVisitor implements IVisitor<Object> {
     @Override
     public Object visit(ExecutableSequence item, IExecutable root) throws Throwable {
         Object rootValue = null;
-        if (item.getRoot() != null)  {
+        if (item.getRoot() != null) {
             rootValue = execute(item.getRoot(), item);
         }
         for (IExecutable p : item.getWriters()) {
             try {
                 execute(p, item.getRoot());
             } catch (Throwable e) {
-          //      e.printStackTrace();
+                // e.printStackTrace();
                 throw e;
             }
         }
@@ -216,7 +217,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             try {
                 execute(p, item.getRoot());
             } catch (Throwable e) {
-              //  e.printStackTrace();
+                // e.printStackTrace();
             }
         }
         return rootValue;
@@ -266,6 +267,11 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             rootValue = execute(root, null);
         }
         return item.getField().get(rootValue);
+    }
+
+    @Override
+    public Object visit(ExecutableEnum item, IExecutable root) throws Throwable {
+        return item.getClassz().getEnumConstants()[0];
     }
 
 }

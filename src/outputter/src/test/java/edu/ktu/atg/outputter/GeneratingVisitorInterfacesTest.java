@@ -147,8 +147,38 @@ public class GeneratingVisitorInterfacesTest {
 
     }
 
+    @Test
+    public void testEnumGenerationNull() throws Throwable {
+        OutputContext context = new OutputContext();
+        SolutionExecutionData execution = new SolutionExecutionData();
+        GeneratingVisitor visitor = new GeneratingVisitor(context, execution);
+        Class<?> classz = Sample1.class;
+        IExecutable item = cna.create(classz, classz, 0);
+        visitor.innerVisit(null, item);
+        Assert.assertEquals("(edu.ktu.atg.outputter.GeneratingVisitorInterfacesTest.Sample1) null",
+                context.getStatements().get(item.getId()).toString());
+    }
+
+    @Test
+    public void testEnumGenerationNotNull() throws Throwable {
+        OutputContext context = new OutputContext();
+        SolutionExecutionData execution = new SolutionExecutionData();
+
+        GeneratingVisitor visitor = new GeneratingVisitor(context, execution);
+        Class<?> classz = Sample1.class;
+        IExecutable item = cna.create(classz, classz, 0);
+        execution.defineValue(DefinedValue.createFixed(item, classz.getEnumConstants()[0]));
+        visitor.innerVisit(null, item);
+        Assert.assertEquals("edu.ktu.atg.outputter.GeneratingVisitorInterfacesTest.Sample1.ONE",
+                context.getStatements().get(item.getId()).toString());
+    }
+
     public static interface TestInterfaceClass {
         public int getValue(int v);
+    }
+
+    public static enum Sample1 {
+        ONE;
     }
 
     public static abstract class TestAbstractClass {

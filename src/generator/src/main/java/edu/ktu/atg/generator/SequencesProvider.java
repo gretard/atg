@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.ktu.atg.common.executables.ExecutableEnum;
 import edu.ktu.atg.common.executables.ExecutableFieldObserver;
 import edu.ktu.atg.common.executables.ExecutableFieldWriter;
 import edu.ktu.atg.common.executables.ExecutableMethod;
@@ -59,6 +60,14 @@ public class SequencesProvider {
             constructors.add(cna.getConstructor(classz, constructor, level));
         }
 
+        for (Method m : provider.getStaticMethodConstructors(classz, classz)) {
+            constructors.add(cna.getMethod(classz, m, 0));
+        }
+        if (classz.isEnum()) {
+            if (!provider.getEnums(classz, classz).isEmpty()) {
+                constructors.add(new ExecutableEnum(classz));
+            }
+        }
         for (Method method : provider.getWriters(classz, classz)) {
             ExecutableMethod m = cna.getMethod(classz, method, level);
             if (m.isStatic()) {
