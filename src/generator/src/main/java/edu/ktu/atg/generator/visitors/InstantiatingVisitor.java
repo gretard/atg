@@ -208,7 +208,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             try {
                 execute(p, item.getRoot());
             } catch (Throwable e) {
-                e.printStackTrace();
+          //      e.printStackTrace();
                 throw e;
             }
         }
@@ -216,7 +216,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             try {
                 execute(p, item.getRoot());
             } catch (Throwable e) {
-                e.printStackTrace();
+              //  e.printStackTrace();
             }
         }
         return rootValue;
