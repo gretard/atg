@@ -35,7 +35,7 @@ public final class ExecutableAbstractClassz extends BaseExecutable implements IE
             items.add((ExecutableAbstractMethod) p.copy());
         }
         List<IExecutable> params = new LinkedList<>();
-        for (IExecutable p : methodsToImplement) {
+        for (IExecutable p : parameters) {
             params.add((IExecutable) p.copy());
         }
         return new ExecutableAbstractClassz(this.constructor, params.toArray(new IExecutable[0]),

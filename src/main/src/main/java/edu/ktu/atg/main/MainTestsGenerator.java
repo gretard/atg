@@ -46,6 +46,8 @@ public class MainTestsGenerator {
         Object generatorObj = generator.newInstance();
         Method m = generator.getMethod("generate", ClasszInfo.class, OptionsRequest.class);
         for (Entry<String, ClasszInfo> data : classes.entrySet()) {
+            LOGGER.info("Starting working on: " + data.getKey());
+
             @SuppressWarnings("unchecked")
             List<GenerationData> results = (List<GenerationData>) m.invoke(generatorObj, data.getValue(), request);
             if (request.isDebug()) {

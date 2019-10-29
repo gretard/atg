@@ -133,6 +133,7 @@ public class GeneratingVisitor implements IVisitor<Node>, IBaseVisitor<Node> {
         exp.setAnonymousClassBody(new NodeList<>());
 
         for (final IExecutable p : item.getParameters()) {
+            System.out.println(p.getClassName()+" "+p.getClass());
             final Node value = this.innerVisit(item, p);
             exp.addArgument((Expression) value);
         }

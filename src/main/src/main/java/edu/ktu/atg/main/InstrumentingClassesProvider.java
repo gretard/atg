@@ -27,13 +27,16 @@ public class InstrumentingClassesProvider {
     public Map<String, ClasszInfo> get(final OptionsRequest request) throws Exception {
         File resourcesDir = request.getDataDirFile();
         System.out.println("Trying to read from: " + resourcesDir);
-
         if (resourcesDir.exists()) {
+            final ClassesFilter filter = new ClassesFilter(request);
+
             System.out.println("Read from: " + resourcesDir);
             Map<String, ClasszInfo> infos = new HashMap<String, ClasszInfo>();
             for (File file : resourcesDir.listFiles()) {
-                ClasszInfo ci = gson.fromJson(new FileReader(file), ClasszInfo.class);
-                infos.put(ci.getName(), ci);
+                if (filter.shouldAdd(file.getName().replace(".json", ""))) {
+                    ClasszInfo ci = gson.fromJson(new FileReader(file), ClasszInfo.class);
+                    infos.put(ci.getName(), ci);
+                }
             }
             if (!infos.isEmpty()) {
                 return infos;
