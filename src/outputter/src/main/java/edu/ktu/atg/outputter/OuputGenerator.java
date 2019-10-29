@@ -29,7 +29,7 @@ public final class OuputGenerator {
         for (final GenerationData data : items) {
             if (request.isDebug()) {
                 FileUtils.write(new File(request.getTracesDir(), data.info.getName() + "_res.json"),
-                        new GsonBuilder().setPrettyPrinting().create().toJson(data.getSolutions()));
+                        new GsonBuilder().setPrettyPrinting().serializeSpecialFloatingPointValues().create().toJson(data.getSolutions()));
             }
             try {
                 final CompilationUnit cu = generator.generate(data);

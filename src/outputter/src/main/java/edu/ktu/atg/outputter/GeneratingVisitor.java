@@ -89,7 +89,6 @@ public class GeneratingVisitor implements IVisitor<Node>, IBaseVisitor<Node> {
 
     @Override
     public Node visit(ExecutableValue item, IExecutable root) throws Throwable {
-        System.out.println("Checking: "+item.getClass()+" "+root);
         String value = getValue(item);
         return GenerationHelper.executableValueToNode(item, value);
     }
@@ -135,7 +134,6 @@ public class GeneratingVisitor implements IVisitor<Node>, IBaseVisitor<Node> {
         exp.setAnonymousClassBody(new NodeList<>());
 
         for (final IExecutable p : item.getParameters()) {
-            System.out.println(p.getClassName() + " " + p.getClass());
             final Node value = this.innerVisit(item, p);
             exp.addArgument((Expression) value);
         }

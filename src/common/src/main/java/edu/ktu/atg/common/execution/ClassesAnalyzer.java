@@ -104,26 +104,50 @@ public class ClassesAnalyzer {
                     methodsToImplement.toArray(new ExecutableAbstractMethod[0]));
         }
 
-        final List<Constructor<?>> constructors = javaObjectsProvider.getConstructors(rootClassz, classz);
-        if (constructors.isEmpty()) {
+        if (Modifier.isAbstract(classz.getModifiers())) {
+            List<ExecutableAbstractMethod> methodsToImplement = javaObjectsProvider.getAllMethods(classz).stream()
+                    .filter(method -> Modifier.isAbstract(method.getModifiers()))
+                    .map(method -> getAbstractMethod(classz, method, level)).collect(Collectors.toList());
+            final List<Constructor<?>> constructors = javaObjectsProvider.getConstructors(rootClassz, classz);
+            if (constructors.isEmpty()) {
+                return new ExecutableValue(classz, ValueType.NULL);
+            }
+            final ExecutableConstructor c = getConstructor(rootClassz, constructors.get(0), level);
+            return new ExecutableAbstractClassz(c.getConstructor(), c.getParameters(),
+                    ExecutableValue.complexType(classz), methodsToImplement.toArray(new ExecutableAbstractMethod[0]));
+        }
+        
+        IExecutableWithReturnValue constructor = selectConstructor(rootClassz, classz, level);
+        if (constructor == null) {
             if (classz.equals(rootClassz)) {
                 throw new IllegalArgumentException(
                         "Can't instantiate classz " + classz + " as no constructors were found...");
             }
             return new ExecutableValue(classz, ValueType.NULL);
         }
-        final Constructor<?> constructor = constructors.get(0);
+        return constructor;
 
-        if (Modifier.isAbstract(classz.getModifiers())) {
-            List<ExecutableAbstractMethod> methodsToImplement = javaObjectsProvider.getAllMethods(classz).stream()
-                    .filter(method -> Modifier.isAbstract(method.getModifiers()))
-                    .map(method -> getAbstractMethod(classz, method, level)).collect(Collectors.toList());
-            ExecutableConstructor constructorData = getConstructor(rootClassz, constructor, level - 1);
-            return new ExecutableAbstractClassz(constructorData.getConstructor(), constructorData.getParameters(),
-                    ExecutableValue.complexType(classz), methodsToImplement.toArray(new ExecutableAbstractMethod[0]));
+    }
+
+    public IExecutableWithReturnValue selectConstructor(final Class<?> rootClassz, final Class<?> classz, int level) {
+        final List<Constructor<?>> constructors = javaObjectsProvider.getConstructors(rootClassz, classz);
+        if (!constructors.isEmpty()) {
+            return getConstructor(rootClassz, constructors.get(0), level - 1);
         }
+        final List<Method> methods = javaObjectsProvider.getStaticMethodConstructors(rootClassz, classz);
 
-        return getConstructor(rootClassz, constructor, level - 1);
+        if (!methods.isEmpty()) {
+            return getMethod(rootClassz, methods.get(0), level - 1);
+        }
+        final List<Field> fields = javaObjectsProvider.getStaticFieldConstructors(rootClassz, classz);
+        if (!fields.isEmpty()) {
+            return getField(rootClassz, fields.get(0), level - 1);
+        }
+        final List<Object> enumConstants = javaObjectsProvider.getEnums(rootClassz, classz);
+        if (!enumConstants.isEmpty()) {
+            return new ExecutableEnum(classz);
+        }
+        return null;
 
     }
 

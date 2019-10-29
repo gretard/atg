@@ -73,7 +73,15 @@ public class JavaObjectsProvider {
         }
         return constructors;
     }
-
+    public List<Field> getStaticFieldConstructors(Class<?> root, Class<?> classz) {
+        List<Field> constructors = new LinkedList<>();
+        for (Field c : classz.getFields()) {
+           if (Modifier.isStatic(c.getModifiers()) &&  classz.isAssignableFrom(c.getType())){
+               constructors.add(c);
+           }
+        }
+        return constructors;
+    }
     public List<Object> getEnums(Class<?> root, Class<?> classz) {
         if (classz.isEnum()) {
             return Arrays.asList(classz.getEnumConstants());
