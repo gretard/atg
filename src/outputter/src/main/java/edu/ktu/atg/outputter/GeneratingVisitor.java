@@ -55,7 +55,12 @@ public class GeneratingVisitor implements IVisitor<Node>, IBaseVisitor<Node> {
                     DefinedValue.createExecutable(item));
             Node nodeValue = null;
             if (value.getState() == ValueState.FIXED && value.getValue() == null) {
-                nodeValue = new NullLiteralExpr();
+                if (item instanceof ExecutableValue) {
+                    nodeValue = GenerationHelper.castTo(GenerationHelper.valueTypeToExpr((ExecutableValue) item),
+                            new NullLiteralExpr());
+                } else {
+                    nodeValue = GenerationHelper.castTo(GenerationHelper.generateType(item), new NullLiteralExpr());
+                }
             } else {
                 if (value.getState() == ValueState.REF) {
                     nodeValue = new NameExpr(context.getNames().get(value.getRef().getId()));

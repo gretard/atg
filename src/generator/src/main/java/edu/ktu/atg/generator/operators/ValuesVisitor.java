@@ -1,5 +1,6 @@
 package edu.ktu.atg.generator.operators;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,6 +25,7 @@ import edu.ktu.atg.common.executables.ValueType;
 import edu.ktu.atg.common.execution.CandidateSolution;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.execution.models.DefinedValue;
+import edu.ktu.atg.common.execution.models.ExecutablePair;
 
 public class ValuesVisitor implements IOperator, IVisitor<Object> {
     private final List<SolutionExecutionData> data = new LinkedList<>();
@@ -48,7 +50,9 @@ public class ValuesVisitor implements IOperator, IVisitor<Object> {
     }
 
     public ValuesVisitor work() {
-        this.solution.data.getExecutedPairs().forEach(pair -> {
+        List<ExecutablePair> pairs = new ArrayList<ExecutablePair>( this.solution.data.getExecutedPairs());
+        
+        pairs.forEach(pair -> {
             try {
                 pair.getItem().accept(pair.getRoot(), this);
             } catch (Throwable e) {

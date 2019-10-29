@@ -50,7 +50,37 @@ public final class GenerationHelper {
         return type;
     }
 
+    public static Type valueTypeToExpr(ExecutableValue item) {
+        ValueType type = item.getType();
+        switch (type) {
+        case BOOLEAN:
+            return PrimitiveType.booleanType();
+        case BYTE:
+            return PrimitiveType.byteType();
+        case CHAR:
+            return PrimitiveType.charType();
+        case DOUBLE:
+            return PrimitiveType.doubleType();
+        case ENUM:
+            return generateType(item);
+        case FLOAT:
+            return PrimitiveType.floatType();
+        case INT:
+            return PrimitiveType.intType();
+        case LONG:
+            return PrimitiveType.longType();
+        case SHORT:
+            return PrimitiveType.shortType();
+        default:
+            return generateType(item);
+        }
+    }
+
     public static Expression executableValueToNode(ExecutableValue item, String value) {
+        return castTo(valueTypeToExpr(item), executableValueToNodeWithNoCast(item, value));
+    }
+
+    public static Expression executableValueToNodeWithNoCast(ExecutableValue item, String value) {
         final ValueType type = item.getType();
         if (value == null) {
             return new NullLiteralExpr();
@@ -69,11 +99,11 @@ public final class GenerationHelper {
         case STRING:
             return new StringLiteralExpr(StringEscapeUtils.escapeJava(value));
         case SHORT:
-            return castTo(PrimitiveType.shortType(), value);
+            return castTo(PrimitiveType.shortType(), new IntegerLiteralExpr(value));
         case BYTE:
-            return castTo(PrimitiveType.byteType(), value);
+            return castTo(PrimitiveType.byteType(), new IntegerLiteralExpr(value));
         case CHAR:
-            return castTo(PrimitiveType.charType(), ((int) value.charAt(0)) + "");
+            return castTo(PrimitiveType.charType(), new IntegerLiteralExpr(((int) value.charAt(0)) + ""));
         case ENUM:
             return new NameExpr(item.getClassName() + "." + value);
         default:
@@ -81,8 +111,8 @@ public final class GenerationHelper {
         }
     }
 
-    public static final Expression castTo(final Type type, final String val) {
-        return new CastExpr(type, new IntegerLiteralExpr(val));
+    public static final Expression castTo(final Type type, final Expression val) {
+        return new CastExpr(type, val);
     }
 
     public static final Expression doubleToString(final String prefix, final String val, final String postFix) {
