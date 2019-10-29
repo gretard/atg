@@ -27,10 +27,15 @@ public final class OuputGenerator {
 
     public void generate(List<GenerationData> items, OptionsRequest request) throws IOException {
         for (final GenerationData data : items) {
-            //if (request.isDebug()) {
-                FileUtils.write(new File(request.getTracesDir(), data.info.getName() + "_res.json"),
-                        new GsonBuilder().setPrettyPrinting().serializeSpecialFloatingPointValues().create().toJson(data.getSolutions()));
-            //}
+            if (request.isDebug()) {
+                try {
+                    FileUtils.write(new File(request.getTracesDir(), data.info.getName() + "_res.json"),
+                            new GsonBuilder().setPrettyPrinting().serializeSpecialFloatingPointValues().create()
+                                    .toJson(data.getSolutions()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             try {
                 final CompilationUnit cu = generator.generate(data);
                 final NodeList<TypeDeclaration<?>> types = cu.getTypes();
