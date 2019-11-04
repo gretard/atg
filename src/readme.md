@@ -14,7 +14,7 @@ mvn clean install
 ```
 
 ```
-mvn -Dcheckstyle.maxAllowedViolations=99999999 clean install com.github.spotbugs:spotbugs-maven-plugin:3.1.12.2:spotbugs checkstyle:check sonar:sonar
+mvn -Dcheckstyle.maxAllowedViolations=99999999 clean install com.github.spotbugs:spotbugs-maven-plugin:3.1.12.2:spotbugs pmd:pmd checkstyle:check sonar:sonar
 ```
 
 

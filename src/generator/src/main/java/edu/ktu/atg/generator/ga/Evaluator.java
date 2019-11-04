@@ -7,7 +7,7 @@ import edu.ktu.atg.generator.ga.stopping.IStoppingFuntion;
 public class Evaluator {
     private final SolutionsContext data;
     private final IGoal goal;
-    private IStoppingFuntion stoppingFuntion;
+    private final IStoppingFuntion stoppingFuntion;
 
     public Evaluator(IGoal goal, IStoppingFuntion stoppingFuntion, SolutionsContext data) {
         this.goal = goal;
@@ -31,7 +31,7 @@ public class Evaluator {
     }
 
     public void start() throws Throwable {
-        System.out.println("EV STARTED....");
+
         while (!stoppingFuntion.shouldStop()) {
             while (!data.executedSolutions.isEmpty() && !stoppingFuntion.shouldStop()) {
                 final CandidateSolution solution = data.executedSolutions.poll();

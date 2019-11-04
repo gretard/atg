@@ -13,15 +13,13 @@ import javassist.bytecode.AccessFlag;
 public class ClassesProvider {
     public List<String> getClasses(OptionsRequest request) {
         final ClasspathScanner scanner = new ClasspathScanner();
-        final ClassesFilter filter = new ClassesFilter(request);
 
         List<String> classes = new LinkedList<>();
         Arrays.asList(request.getClassesDir()).forEach(d -> {
             scanner.scanFrom(Paths.get(d));
         });
         scanner.getClasses().stream()
-                .filter(c -> filter.shouldAdd(c.getName())
-                        && !(c.isAbstract() || c.isInterface() || AccessFlag.isPrivate(c.getAccessFlags())))
+                .filter(c -> !(c.isAbstract() || c.isInterface() || AccessFlag.isPrivate(c.getAccessFlags())))
                 .forEach(c -> {
                     classes.add(c.getName());
                 });

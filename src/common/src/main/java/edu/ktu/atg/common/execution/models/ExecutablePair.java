@@ -30,12 +30,35 @@ public final class ExecutablePair {
         this.returnValue = returnValue;
     }
 
+    public String toShort() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ROOT: ");
+        if (root != null) {
+            sb.append(root.getId());
+        }
+        sb.append(" item: ");
+        if (item != null) {
+            sb.append(item.getId());
+        }
+        sb.append(" rt: ");
+        if (returnValue != null) {
+            sb.append(returnValue.getId());
+        }
+        return sb.toString();
+    }
+
     public static ExecutablePair ok(IExecutable root, IExecutable item, IExecutable returnValue) {
         return new ExecutablePair(root, item, returnValue);
     }
 
     public static ExecutablePair ko(IExecutable root, IExecutable item) {
         ExecutablePair pair = new ExecutablePair(root, item, null);
+        pair.isOk = false;
+        return pair;
+    }
+
+    public static ExecutablePair ko(IExecutable root, IExecutable item, IExecutable returnValue) {
+        ExecutablePair pair = new ExecutablePair(root, item, returnValue);
         pair.isOk = false;
         return pair;
     }

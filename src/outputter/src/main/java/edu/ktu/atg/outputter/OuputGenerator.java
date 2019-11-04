@@ -48,7 +48,9 @@ public final class OuputGenerator {
                 }
                 final File file = new File(request.getResultsDir(),
                         typeDeclaration.get().replace('.', File.separatorChar) + ".java");
-
+                if (request.isDebug()) {
+                    System.out.println(cu.toString());
+                }
                 FileUtils.write(file, cu.toString(), Charset.defaultCharset());
                 LOGGER.info(() -> "Saved results to: " + file + " for tests: " + data.getSolutions().size());
             } catch (IOException e) {

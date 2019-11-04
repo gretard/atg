@@ -50,6 +50,8 @@ public class GeneratingVisitor implements IVisitor<Node>, IBaseVisitor<Node> {
     }
 
     public Node innerVisit(IExecutable root, IExecutable item) throws Throwable {
+
+        // System.out.println(root+" "+item);
         if (!this.context.getStatements().containsKey(item.getId())) {
 
             DefinedValue value = this.executionData.getDefinedValues().getOrDefault(item.getId(),
@@ -179,6 +181,7 @@ public class GeneratingVisitor implements IVisitor<Node>, IBaseVisitor<Node> {
         if (item.isStatic()) {
             rootNode = new NameExpr(item.getClassName());
         } else {
+            
             rootNode = this.innerVisit(null, root);
         }
 
@@ -230,26 +233,32 @@ public class GeneratingVisitor implements IVisitor<Node>, IBaseVisitor<Node> {
     public Node visit(ExecutableSequence item, IExecutable root) throws Throwable {
         Node rootValue = null;
         if (item.getRoot() != null) {
-            rootValue = innerVisit(item.getRoot(), item);
+            rootValue = innerVisit(item, item.getRoot());
         }
+        
+        for (IExecutable p : item.getStaticWriters()) {
+            innerVisit(item.getReturnValue(), p);
+        }
+
         for (IExecutable p : item.getWriters()) {
-            innerVisit(p, item.getRoot());
+            innerVisit(item.getReturnValue(), p);
 
         }
         for (IExecutable p : item.getObservers()) {
-            innerVisit(p, item.getRoot());
+            innerVisit(item.getReturnValue(), p);
         }
         return rootValue;
     }
 
     @Override
     public Node visit(ExecutableEnum item, IExecutable root) throws Throwable {
-        if (!executionData.getDefinedValues().containsKey(item.getId()) || item.getClassz().getEnumConstants().length == 0) {
+        if (!executionData.getDefinedValues().containsKey(item.getId())
+                || item.getClassz().getEnumConstants().length == 0) {
             return GenerationHelper.castTo(GenerationHelper.generateType(item), new NullLiteralExpr());
         }
         String value = getValue(item);
         if (value == null) {
-           value = item.getClassz().getEnumConstants()[0].toString();
+            value = item.getClassz().getEnumConstants()[0].toString();
 
         }
         return new NameExpr(GenerationHelper.generateType(item) + "." + value);

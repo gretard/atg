@@ -45,7 +45,11 @@ public class MainTestsGenerator {
         @SuppressWarnings("deprecation")
         Object generatorObj = generator.newInstance();
         Method m = generator.getMethod("generate", ClasszInfo.class, OptionsRequest.class);
+        final ClassesFilter filter = new ClassesFilter(request);
         for (Entry<String, ClasszInfo> data : classes.entrySet()) {
+            if (!filter.shouldAdd(data.getKey())) {
+                continue;
+            }
             LOGGER.info("Starting working on: " + data.getKey());
 
             @SuppressWarnings("unchecked")

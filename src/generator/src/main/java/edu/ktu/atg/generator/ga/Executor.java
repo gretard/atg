@@ -2,7 +2,6 @@ package edu.ktu.atg.generator.ga;
 
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,10 +21,10 @@ import edu.ktu.atg.generator.visitors.InstantiatingVisitor;
 
 public class Executor {
 
-    private SolutionsContext data;
-    private ClassLoader loader;
-    private int timeout;
-    private IStoppingFuntion stoppingFuntion;
+    private final SolutionsContext data;
+    private final ClassLoader loader;
+    private final int timeout;
+    private final IStoppingFuntion stoppingFuntion;
 
     public Executor(SolutionsContext data, ClassLoader loader, IStoppingFuntion stoppingFuntion, int timeout) {
         this.data = data;
@@ -82,7 +81,6 @@ public class Executor {
         }
 
         close();
-        System.out.println("EX finished: " + count + " " + total + " archive size: " + data.archive.size());
     }
 
     private void close() throws InterruptedException {
@@ -128,11 +126,15 @@ public class Executor {
                 MultiMonitor.INSTANCE.fill(solution.data);
                 data.executedSolutions.add(solution);
                 total++;
+                /*
+                 * System.out.println("D"); solution.data.getExecutedPairs().forEach(p -> {
+                 * System.out.println(p.toShort()); });
+                 */
             }
         } catch (TimeoutException e) {
             future.cancel(true);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
@@ -144,14 +146,15 @@ public class Executor {
         MultiMonitor.INSTANCE.clear();
         final InstantiatingVisitor visitor = new InstantiatingVisitor(trace, loader);
         try {
+
             final IExecutable root = s.getRoot();
             visitor.execute(root, null);
             for (final IExecutable item : s.getWriters()) {
-                visitor.execute(item, root);
+                visitor.execute(item, s.getReturnValue());
             }
             Thread.sleep(1);
             for (final IExecutable item : s.getObservers()) {
-                visitor.execute(item, root);
+                visitor.execute(item, s.getReturnValue());
             }
         }
 

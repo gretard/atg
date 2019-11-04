@@ -1,8 +1,5 @@
 package edu.ktu.atg.generator.ga;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +46,7 @@ public class Generator {
     private int maxSize = 1000;
 
     public void start() throws Throwable {
-        System.out.println("GA STARTED....");
+
         while (!stoppingFuntion.shouldStop()) {
             while (data.solutionsToCheck.size() > maxSize) {
                 Thread.sleep(10);

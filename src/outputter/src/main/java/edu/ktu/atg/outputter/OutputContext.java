@@ -47,6 +47,21 @@ public class OutputContext {
             names.put(item.getId(), "sut_" + names.size());
         }
     }
+    public void generateName(IExecutable root, IExecutable item) {
+        if (item == null) {
+            return;
+        }
+        Integer count = counts.getOrDefault(item.getId(), 0);
+        count += 1;
+        counts.put(item.getId(), count);
+        if (names.containsKey(root.getId())) {
+            names.put(item.getId(), names.get(root.getId()));
+            return;
+        }
+        if (!names.containsKey(item.getId())) {
+            names.put(item.getId(), "sut_" + names.size());
+        }
+    }
 
     public Node getNodeValue(IExecutable item) {
         boolean inline = canBeInlined(item);

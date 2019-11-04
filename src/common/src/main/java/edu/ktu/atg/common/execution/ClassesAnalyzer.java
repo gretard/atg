@@ -4,8 +4,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.ktu.atg.common.executables.ExecutableAbstractClassz;
@@ -32,19 +35,29 @@ public class ClassesAnalyzer {
     private final int deltaToTake;
 
     public ClassesAnalyzer() {
-        this(3, 1);
+        this(3, 0);
     }
+
+    private final Map<Class<?>, Class<?>> knownClasses = new HashMap<>();
 
     public ClassesAnalyzer(int maxLevel, int delta) {
         this.maxLevel = maxLevel;
         this.deltaToTake = delta;
+        knownClasses.put(CharSequence.class, String.class);
+        knownClasses.put(Iterable.class, ArrayList.class);
+        knownClasses.put(java.lang.Appendable.class, StringBuilder.class);
+
+        //
     }
 
     public IExecutable create(Class<?> rootClassz, Class<?> classz, int level) {
         if (classz == null) {
             throw new IllegalArgumentException("Could not analyze class null for");
         }
-
+        if (knownClasses.containsKey(classz)) {
+            System.out.println("Returning " + classz + " " + knownClasses.get(classz));
+            return create(rootClassz, knownClasses.get(classz), level);
+        }
         if (classz == void.class || classz == Void.class) {
             return new ExecutableVoid();
         }
@@ -98,8 +111,7 @@ public class ClassesAnalyzer {
 
         if (classz.isInterface()) {
             List<ExecutableAbstractMethod> methodsToImplement = javaObjectsProvider.getAllMethods(classz).stream()
-                    .map(method -> getAbstractMethod(classz, method, level-1)).collect(Collectors.toList());
-
+                    .map(method -> getAbstractMethod(classz, method, level)).collect(Collectors.toList());
             return new ExecutableInterface(classz, ExecutableValue.complexType(classz),
                     methodsToImplement.toArray(new ExecutableAbstractMethod[0]));
         }
@@ -107,17 +119,17 @@ public class ClassesAnalyzer {
         if (Modifier.isAbstract(classz.getModifiers())) {
             List<ExecutableAbstractMethod> methodsToImplement = javaObjectsProvider.getAllMethods(classz).stream()
                     .filter(method -> Modifier.isAbstract(method.getModifiers()))
-                    .map(method -> getAbstractMethod(classz, method, level-1)).collect(Collectors.toList());
+                    .map(method -> getAbstractMethod(classz, method, level)).collect(Collectors.toList());
             final List<Constructor<?>> constructors = javaObjectsProvider.getConstructors(rootClassz, classz);
             if (constructors.isEmpty()) {
                 return new ExecutableValue(classz, ValueType.NULL);
             }
-            final ExecutableConstructor c = getConstructor(rootClassz, constructors.get(0), level-1);
+            final ExecutableConstructor c = getConstructor(rootClassz, constructors.get(0), level);
             return new ExecutableAbstractClassz(c.getConstructor(), c.getParameters(),
                     ExecutableValue.complexType(classz), methodsToImplement.toArray(new ExecutableAbstractMethod[0]));
         }
-        
-        IExecutableWithReturnValue constructor = selectConstructor(rootClassz, classz, level-1);
+
+        IExecutableWithReturnValue constructor = selectConstructor(rootClassz, classz, level);
         if (constructor == null) {
             if (classz.equals(rootClassz)) {
                 throw new IllegalArgumentException(
@@ -125,23 +137,24 @@ public class ClassesAnalyzer {
             }
             return new ExecutableValue(classz, ValueType.NULL);
         }
-        return constructor;
+
+        return getExecutableConstructor(rootClassz, classz, constructor, level);
 
     }
 
     public IExecutableWithReturnValue selectConstructor(final Class<?> rootClassz, final Class<?> classz, int level) {
         final List<Constructor<?>> constructors = javaObjectsProvider.getConstructors(rootClassz, classz);
         if (!constructors.isEmpty()) {
-            return getConstructor(rootClassz, constructors.get(0), level - 1);
+            return getConstructor(rootClassz, constructors.get(0), level);
         }
         final List<Method> methods = javaObjectsProvider.getStaticMethodConstructors(rootClassz, classz);
 
         if (!methods.isEmpty()) {
-            return getMethod(rootClassz, methods.get(0), level - 1);
+            return getMethod(rootClassz, methods.get(0), level);
         }
         final List<Field> fields = javaObjectsProvider.getStaticFieldConstructors(rootClassz, classz);
         if (!fields.isEmpty()) {
-            return getField(rootClassz, fields.get(0), level - 1);
+            return getField(rootClassz, fields.get(0), level);
         }
         final List<Object> enumConstants = javaObjectsProvider.getEnums(rootClassz, classz);
         if (!enumConstants.isEmpty()) {
@@ -155,19 +168,33 @@ public class ClassesAnalyzer {
             final IExecutableWithReturnValue root, int level) {
 
         int delta = maxLevel - level;
-        if (delta > 0 && (maxLevel - level) <= deltaToTake) {
+        if (level > 0 && delta > 0 && (maxLevel - level) <= deltaToTake) {
+            System.out.println("Creating return seq " + root);
             ExecutableSequence s = new ExecutableSequence(classz, root);
 
             for (Method m : javaObjectsProvider.getWriters(rootClassz, classz)) {
+                if (!Modifier.isPublic(m.getModifiers())) {
+                    continue;
+                }
                 s.getWriters().add(getMethod(rootClassz, m, level));
+
             }
             for (Field m : javaObjectsProvider.getWriterFields(rootClassz, classz)) {
+                if (!Modifier.isPublic(m.getModifiers())) {
+                    continue;
+                }
                 s.getWriters().add(getWriterField(rootClassz, m, level));
             }
             for (Method m : javaObjectsProvider.getObservers(rootClassz, classz)) {
+                if (!Modifier.isPublic(m.getModifiers())) {
+                    continue;
+                }
                 s.getObservers().add(getMethod(rootClassz, m, level));
             }
             for (Field m : javaObjectsProvider.getObserverFields(rootClassz, classz)) {
+                if (!Modifier.isPublic(m.getModifiers())) {
+                    continue;
+                }
                 s.getObservers().add(getField(rootClassz, m, level));
             }
             return s;
@@ -181,41 +208,47 @@ public class ClassesAnalyzer {
 
         final List<IExecutable> parameters = new LinkedList<>();
         for (final Class<?> p : constructor.getParameterTypes()) {
-            parameters.add(create(classz, p, level));
+            parameters.add(create(classz, p, level - 1));
         }
         ExecutableConstructor root = new ExecutableConstructor(constructor,
                 new ExecutableValue(constructor.getDeclaringClass(), ValueType.COMPLEX),
                 parameters.toArray(new IExecutable[0]));
+
         return root;
     }
 
-    public ExecutableMethod getMethod(final Class<?> classz, final Method method, int level) {
+    public IExecutableWithReturnValue getMethod(final Class<?> classz, final Method method, int level) {
         final List<IExecutable> parameters = new LinkedList<>();
         for (final Class<?> p : method.getParameterTypes()) {
-            parameters.add(create(classz, p, level));
+            parameters.add(create(classz, p, level - 1));
         }
-        return new ExecutableMethod(method, create(classz, method.getReturnType(), level),
+        System.out.println(method);
+        ExecutableMethod m = new ExecutableMethod(method, create(classz, method.getReturnType(), level - 1),
                 parameters.toArray(new IExecutable[0]));
+        
+        
+        return m; //getExecutableConstructor(classz, method.getDeclaringClass(), m, level - 1);
     }
 
     public ExecutableAbstractMethod getAbstractMethod(final Class<?> classz, final Method method, int level) {
         final List<IExecutable> parameters = new LinkedList<>();
         for (final Class<?> p : method.getParameterTypes()) {
-            parameters.add(create(classz, p, level));
+            parameters.add(create(classz, p, 0));
         }
-        return new ExecutableAbstractMethod(method, create(classz, method.getReturnType(), level),
+        // System.out.println("AB: "+method);
+        return new ExecutableAbstractMethod(method, create(classz, method.getReturnType(), level - 1),
                 parameters.toArray(new IExecutable[0]));
     }
 
     public ExecutableFieldObserver getField(final Class<?> classz, final Field field, int level) {
         final Class<?> returnType = field.getType();
-        return new ExecutableFieldObserver(field, create(classz, returnType, level));
+        return new ExecutableFieldObserver(field, create(classz, returnType, level - 1));
 
     }
 
     public ExecutableFieldWriter getWriterField(final Class<?> classz, final Field field, int level) {
         final Class<?> returnType = field.getType();
-        return new ExecutableFieldWriter(field, create(classz, returnType, level));
+        return new ExecutableFieldWriter(field, create(classz, returnType, level - 1));
 
     }
 }

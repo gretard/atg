@@ -3,6 +3,7 @@ package edu.ktu.atg.generator;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class SequencesProvider {
     private final JavaObjectsProvider provider = new JavaObjectsProvider();
 
     public ClassContext getSequences(Class<?> classz) {
-        int level = 3;
+        int level = 2;
         final ClassesAnalyzer cna = new ClassesAnalyzer(level, 0);
 
         ClassContext ctx = new ClassContext();
@@ -60,8 +61,11 @@ public class SequencesProvider {
             constructors.add(cna.getConstructor(classz, constructor, level));
         }
 
-        for (Method m : provider.getStaticMethodConstructors(classz, classz)) {
-            constructors.add(cna.getMethod(classz, m, 0));
+        for (Method method : provider.getStaticMethodConstructors(classz, classz)) {
+            if (method.getDeclaringClass().getName().startsWith("java.")) {
+                continue;
+            }
+            constructors.add(cna.getMethod(classz, method, 0));
         }
         if (classz.isEnum()) {
             if (!provider.getEnums(classz, classz).isEmpty()) {
@@ -69,8 +73,12 @@ public class SequencesProvider {
             }
         }
         for (Method method : provider.getWriters(classz, classz)) {
-            ExecutableMethod m = cna.getMethod(classz, method, level);
-            if (m.isStatic()) {
+
+            if (method.getDeclaringClass().getName().startsWith("java.")) {
+                continue;
+            }
+            IExecutable m = cna.getMethod(classz, method, level);
+            if (Modifier.isStatic(method.getModifiers())) {
                 staticWriters.add(m);
             } else {
                 writers.add(m);
@@ -78,6 +86,7 @@ public class SequencesProvider {
 
         }
         for (Field method : provider.getWriterFields(classz, classz)) {
+            
             ExecutableFieldWriter m = cna.getWriterField(classz, method, level);
             if (m.isStatic()) {
                 staticWriters.add(m);
@@ -86,8 +95,11 @@ public class SequencesProvider {
             }
         }
         for (Method method : provider.getObservers(classz, classz)) {
-            ExecutableMethod m = cna.getMethod(classz, method, level);
-            if (m.isStatic()) {
+            if (method.getDeclaringClass().getName().startsWith("java.")) {
+                continue;
+            }
+            IExecutable m = cna.getMethod(classz, method, level);
+            if (Modifier.isStatic(method.getModifiers())) {
                 staticObservers.add(m);
             } else {
                 observers.add(m);

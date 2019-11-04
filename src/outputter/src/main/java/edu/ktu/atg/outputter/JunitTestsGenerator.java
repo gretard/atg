@@ -82,7 +82,7 @@ public class JunitTestsGenerator {
         executionData.getExecutedPairs().forEach(pair -> {
             context.generateName(pair.getRoot());
             context.generateName(pair.getItem());
-            context.generateName(pair.getReturnValue());
+            context.generateName(pair.getItem(), pair.getReturnValue());
         });
         // generate statements
         executionData.getExecutedPairs().forEach(pair -> {
@@ -99,7 +99,7 @@ public class JunitTestsGenerator {
         executionData.getExecutedPairs().forEach(pair -> {
             IExecutable item = pair.getItem();
             IExecutable returnValue = pair.getReturnValue();
-            boolean inline = context.canBeInlined(item);
+         
 
             if (!context.getStatements().containsKey(item.getId()) || context.canBeInlined(item)
                     || generated.contains(item.getId())) {
@@ -108,6 +108,9 @@ public class JunitTestsGenerator {
             generated.add(item.getId());
             Node right = context.getStatements().get(item.getId());
             String name = context.getNames().getOrDefault(item.getId(), null);
+            if (returnValue !=null) {
+                //name = context.getNames().getOrDefault(returnValue.getId(), null);
+            }
             if (item instanceof ExecutableFieldWriter) {
                 Node right0 = context.getStatements().get(((ExecutableFieldWriter) item).getInputValue().getId());
                 AssignExpr assignEx = new AssignExpr((Expression) right, (Expression) right0, Operator.ASSIGN);

@@ -33,10 +33,8 @@ public class InstrumentingClassesProvider {
             System.out.println("Read from: " + resourcesDir);
             Map<String, ClasszInfo> infos = new HashMap<String, ClasszInfo>();
             for (File file : resourcesDir.listFiles()) {
-                if (filter.shouldAdd(file.getName().replace(".json", ""))) {
                     ClasszInfo ci = gson.fromJson(new FileReader(file), ClasszInfo.class);
                     infos.put(ci.getName(), ci);
-                }
             }
             if (!infos.isEmpty()) {
                 return infos;

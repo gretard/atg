@@ -73,6 +73,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
         if (item == null && root == null) {
             return null;
         }
+    
         if (cache.containsKey(item.getId())) {
             return cache.get(item.getId());
         }
@@ -87,7 +88,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
         Object returnValue = null;
 
         try {
-            IExecutable returnValueDefinition = null;
+           
             if (definedValue.getState() == ValueState.REF) {
                 returnValue = execute(definedValue.getRef(), root);
 
@@ -97,18 +98,21 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             }
 
             if (item instanceof IExecutableWithReturnValue) {
-                returnValueDefinition = ((IExecutableWithReturnValue) item).getReturnValue();
+                IExecutable returnValueDefinition = ((IExecutableWithReturnValue) item).getReturnValue();
                 this.cache.put(returnValueDefinition.getId(), returnValue);
+                this.cache.put(item.getId(), returnValue);
                 List<ResultValue> results = ResultValue.fromValue(returnValueDefinition, returnValue);
                 List<ResultValue> savedResults = this.results.getOrDefault(returnValueDefinition.getId(),
                         new LinkedList<ResultValue>());
                 savedResults.addAll(results);
                 this.results.put(item.getId(), savedResults);
-                pairs.add(ExecutablePair.ok(root, item, returnValueDefinition));
+                this.pairs.add(ExecutablePair.ok(root, item, returnValueDefinition));
+            } else {
+                pairs.add(ExecutablePair.ok(root, item, null));
                 cache.put(item.getId(), returnValue);
             }
-        } catch (Exception e) {
-            pairs.add(ExecutablePair.ko(root, item));
+        } catch (Throwable e) {
+            pairs.add(ExecutablePair.ko(root, item, null));
             throw e;
         }
 
@@ -123,7 +127,6 @@ public class InstantiatingVisitor implements IVisitor<Object> {
             Object value = execute(p, item);
             values.add(value);
         }
-
         return item.getConstructor().newInstance(values.toArray());
 
     }
@@ -201,21 +204,28 @@ public class InstantiatingVisitor implements IVisitor<Object> {
 
     @Override
     public Object visit(ExecutableSequence item, IExecutable root) throws Throwable {
+        
         Object rootValue = null;
         if (item.getRoot() != null) {
-            rootValue = execute(item.getRoot(), item);
+            rootValue = execute(item.getRoot(), root);
+        }
+        for (IExecutable p : item.getStaticWriters()) {
+            try {
+                execute(p, item.getReturnValue());
+            } catch (Throwable e) {
+            }
         }
         for (IExecutable p : item.getWriters()) {
             try {
-                execute(p, item.getRoot());
+                execute(p, item.getReturnValue());
             } catch (Throwable e) {
-                // e.printStackTrace();
+                e.printStackTrace();
                 throw e;
             }
         }
         for (IExecutable p : item.getObservers()) {
             try {
-                execute(p, item.getRoot());
+                execute(p, item.getReturnValue());
             } catch (Throwable e) {
                 // e.printStackTrace();
             }
@@ -239,6 +249,7 @@ public class InstantiatingVisitor implements IVisitor<Object> {
     public Object visit(ExecutableMethod item, IExecutable root) throws Throwable {
         Object rootValue = null;
         if (!item.isStatic()) {
+          
             rootValue = execute(root, null);
         }
         List<Object> values = new LinkedList<Object>();

@@ -3,6 +3,8 @@ package edu.ktu.atg.outputter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.github.javaparser.ast.Node;
+
 import edu.ktu.atg.common.executables.ExecutableConstructor;
 import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.execution.ClassesAnalyzer;
@@ -13,6 +15,29 @@ import edu.ktu.atg.common.execution.models.ExecutablePair;
 public class JunitTestsGeneratorTest {
     JunitTestsGenerator sut = new JunitTestsGenerator();
     ClassesAnalyzer cna = new ClassesAnalyzer();
+
+    @Test
+    public void testAbstractWork() {
+        Class<?> classz = CharSequence.class;
+
+        IExecutable item = (IExecutable) cna.create(classz, classz, 3);
+
+        String s = "";
+        SolutionExecutionData data = new SolutionExecutionData();
+
+        data.defineValue(DefinedValue.createExecutable(item));
+        // data.getExecutedPairs().add(new ExecutablePair(null, item,
+        // item.getReturnValue()));
+        // IExecutable in = item.getParameters()[0];
+        data.getExecutedPairs().add(new ExecutablePair(null, item, null));
+
+        OutputContext context = sut.work(data);
+        System.out.println("FINAL");
+        Node val = context.getStatements().getOrDefault(item.getId(), null);
+        Assert.assertNotNull(val);
+        System.out.println(val);
+
+    }
 
     @Test
     public void testWork() {

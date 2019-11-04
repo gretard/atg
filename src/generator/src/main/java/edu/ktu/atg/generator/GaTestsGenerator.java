@@ -61,7 +61,6 @@ public class GaTestsGenerator implements IGenerator {
         LOGGER.info(String.format(
                 "Finished generating for %s classz, with %s goals, initial pop size: %s, selected %s tests", classzName,
                 goal.size(), population.size(), best.size()
-
         ));
         LOGGER.info(() -> goal.getGoalsInfo());
 
