@@ -126,10 +126,6 @@ public class Executor {
                 MultiMonitor.INSTANCE.fill(solution.data);
                 data.executedSolutions.add(solution);
                 total++;
-                /*
-                 * System.out.println("D"); solution.data.getExecutedPairs().forEach(p -> {
-                 * System.out.println(p.toShort()); });
-                 */
             }
         } catch (TimeoutException e) {
             future.cancel(true);

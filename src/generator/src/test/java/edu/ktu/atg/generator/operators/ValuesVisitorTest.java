@@ -20,7 +20,7 @@ public class ValuesVisitorTest {
         sol.data.defineValue(DefinedValue.createFixed(item, "aaaa"));
         ValuesVisitor visitor = new ValuesVisitor(sol);
         visitor.innerExecute(null, item);
-        List<CandidateSolution> sols = visitor.getData();
+        List<CandidateSolution> sols = visitor.getSolutions();
         Assert.assertEquals(12, sols.size());
     }
     
@@ -31,7 +31,7 @@ public class ValuesVisitorTest {
         sol.data.defineValue(DefinedValue.createFixed(item, "12"));
         ValuesVisitor visitor = new ValuesVisitor(sol);
         visitor.innerExecute(null, item);
-        List<CandidateSolution> sols = visitor.getData();
+        List<CandidateSolution> sols = visitor.getSolutions();
         for (CandidateSolution solution : sols) {
             System.out.println(solution.getData().getDefinedValue(item).getValue());
         }

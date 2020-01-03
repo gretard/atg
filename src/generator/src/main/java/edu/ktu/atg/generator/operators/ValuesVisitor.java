@@ -30,17 +30,16 @@ import edu.ktu.atg.common.execution.models.ExecutablePair;
 
 public class ValuesVisitor implements IOperator, IVisitor<Object> {
     private final List<SolutionExecutionData> data = new LinkedList<>();
-    private SolutionExecutionData initialData;
-    private CandidateSolution solution;
+    private final SolutionExecutionData initialData;
+    private final CandidateSolution solution;
 
     public ValuesVisitor(CandidateSolution initialSolution) {
         this.initialData = initialSolution.data.copy();
         this.solution = initialSolution;
-
     }
 
-    public List<CandidateSolution> getData() {
-        List<CandidateSolution> outData = new LinkedList<>();
+    public List<CandidateSolution> getSolutions() {
+        final List<CandidateSolution> outData = new LinkedList<>();
         data.forEach(i -> {
             CandidateSolution sol = new CandidateSolution();
             sol.data = i;
@@ -50,7 +49,7 @@ public class ValuesVisitor implements IOperator, IVisitor<Object> {
         return outData;
     }
 
-    public ValuesVisitor work() {
+    public ValuesVisitor invoke() {
         List<ExecutablePair> pairs = new ArrayList<ExecutablePair>(this.solution.data.getExecutedPairs());
 
         pairs.forEach(pair -> {

@@ -76,8 +76,8 @@ public class Generator {
 
                 if (p2 > 0.8) {
                     // crossover
-                    List<CandidateSolution> sols = new CrossoverOperator(pop.toArray(new CandidateSolution[0])).work()
-                            .getData();
+                    List<CandidateSolution> sols = new CrossoverOperator(pop.toArray(new CandidateSolution[0])).invoke()
+                            .getSolutions();
                     sols.forEach(s -> {
                         data.solutionsToCheck.add(s);
                     });
@@ -85,7 +85,7 @@ public class Generator {
                 } else {
                     // mutate
                     pop.forEach(solution -> {
-                        List<CandidateSolution> results = new ValuesVisitor(solution).work().getData();
+                        List<CandidateSolution> results = new ValuesVisitor(solution).invoke().getSolutions();
                         results.forEach(s -> {
                             data.solutionsToCheck.add(s);
                         });

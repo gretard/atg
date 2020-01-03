@@ -9,75 +9,67 @@ import edu.ktu.atg.common.execution.CandidateSolution;
 
 public class GoalsEvaluator implements IGoal {
 
-    private List<IGoal> secondary;
-    private List<IGoal> primary;
+	private List<IGoal> secondary;
+	private List<IGoal> primary;
 
-    public GoalsEvaluator(List<IGoal> primary, List<IGoal> secondary) {
-        this.primary = primary;
-        this.secondary = secondary;
-    }
+	public GoalsEvaluator(List<IGoal> primary, List<IGoal> secondary) {
+		this.primary = primary;
+		this.secondary = secondary;
+	}
 
-    public int size() {
-        return primary.size() + secondary.size();
-    }
+	public int size() {
+		return primary.size() + secondary.size();
+	}
 
-    public String getGoalsInfo() {
-        StringBuilder sb = new StringBuilder();
-        for (IGoal p : primary) {
-            sb.append(String.format("%s - %s -%s%n", p.getClass().getSimpleName(), p.isMet(),
-                    p.getBestSolutions().size()));
-        }
-        for (IGoal p : secondary) {
-            sb.append(String.format("%s - %s -%s%n", p.getClass().getSimpleName(), p.isMet(),
-                    p.getBestSolutions().size()));
-        }
-        return sb.toString();
-    }
+	public String getGoalsInfo() {
+		final StringBuilder sb = new StringBuilder();
+		for (final IGoal p : primary) {
+			sb.append(String.format("%s - %s - %s%n", p.getClass().getSimpleName(), p.isMet(),
+					p.getBestSolutions().size()));
+		}
+		for (final IGoal p : secondary) {
+			sb.append(String.format("%s - %s - %s%n", p.getClass().getSimpleName(), p.isMet(),
+					p.getBestSolutions().size()));
+		}
+		return sb.toString();
+	}
 
-    @Override
-    public boolean evalute(CandidateSolution data) {
-        if (data == null) {
-            return false;
-        }
-        boolean anyFound = false;
-        for (IGoal goal : primary) {
-            boolean r = goal.evalute(data);
-            // System.out.println(data+" "+goal.getClass().getSimpleName()+" ss
-            // selected"+r);
-            if (r) {
+	@Override
+	public boolean evalute(final CandidateSolution data) {
+		if (data == null) {
+			return false;
+		}
+		boolean anyFound = false;
+		for (final IGoal goal : primary) {
+			if (goal.evalute(data)) {
+				anyFound = true;
+			}
+		}
+		for (final IGoal goal : secondary) {
+			if (anyFound || !goal.isMet()) {
+				if (goal.evalute(data)) {
+					anyFound = true;
+				}
+			}
+		}
 
-                anyFound = true;
-            }
-        }
-        for (IGoal goal : secondary) {
-            if (anyFound || !goal.isMet()) {
-                boolean r = goal.evalute(data);
+		return anyFound;
+	}
 
-                if (r) {
+	@Override
+	public Collection<CandidateSolution> getBestSolutions() {
+		final Set<CandidateSolution> set = new HashSet<>();
+		for (final IGoal goal : primary) {
+			set.addAll(goal.getBestSolutions());
+		}
+		for (final IGoal goal : secondary) {
+			set.addAll(goal.getBestSolutions());
+		}
+		return set;
+	}
 
-                    anyFound = true;
-                }
-            }
-        }
-
-        return anyFound;
-    }
-
-    @Override
-    public Collection<CandidateSolution> getBestSolutions() {
-        final Set<CandidateSolution> set = new HashSet<>();
-        for (IGoal goal : primary) {
-            set.addAll(goal.getBestSolutions());
-        }
-        for (IGoal goal : secondary) {
-            set.addAll(goal.getBestSolutions());
-        }
-        return set;
-    }
-
-    @Override
-    public boolean isMet() {
-        // TODO Auto-generated method stub
-        return false;
-    }
+	@Override
+	public boolean isMet() {
+		return false;
+	}
 }

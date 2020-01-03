@@ -168,8 +168,9 @@ public class ClassesAnalyzer {
             final IExecutableWithReturnValue root, int level) {
 
         int delta = maxLevel - level;
-        if (level > 0 && delta > 0 && (maxLevel - level) <= deltaToTake) {
-            System.out.println("Creating return seq " + root);
+        System.out.println("Levevl " + level + " " + delta + " ");
+        if (level > 0 && delta < deltaToTake && deltaToTake > 0) {
+System.out.println("OK");
             ExecutableSequence s = new ExecutableSequence(classz, root);
 
             for (Method m : javaObjectsProvider.getWriters(rootClassz, classz)) {
@@ -222,12 +223,11 @@ public class ClassesAnalyzer {
         for (final Class<?> p : method.getParameterTypes()) {
             parameters.add(create(classz, p, level - 1));
         }
-        System.out.println(method);
+
         ExecutableMethod m = new ExecutableMethod(method, create(classz, method.getReturnType(), level - 1),
                 parameters.toArray(new IExecutable[0]));
-        
-        
-        return m; //getExecutableConstructor(classz, method.getDeclaringClass(), m, level - 1);
+
+        return m; // getExecutableConstructor(classz, method.getDeclaringClass(), m, level - 1);
     }
 
     public ExecutableAbstractMethod getAbstractMethod(final Class<?> classz, final Method method, int level) {
@@ -235,7 +235,6 @@ public class ClassesAnalyzer {
         for (final Class<?> p : method.getParameterTypes()) {
             parameters.add(create(classz, p, 0));
         }
-        // System.out.println("AB: "+method);
         return new ExecutableAbstractMethod(method, create(classz, method.getReturnType(), level - 1),
                 parameters.toArray(new IExecutable[0]));
     }
@@ -243,7 +242,6 @@ public class ClassesAnalyzer {
     public ExecutableFieldObserver getField(final Class<?> classz, final Field field, int level) {
         final Class<?> returnType = field.getType();
         return new ExecutableFieldObserver(field, create(classz, returnType, level - 1));
-
     }
 
     public ExecutableFieldWriter getWriterField(final Class<?> classz, final Field field, int level) {

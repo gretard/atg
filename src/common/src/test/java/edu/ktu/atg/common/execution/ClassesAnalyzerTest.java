@@ -28,7 +28,7 @@ public class ClassesAnalyzerTest {
     }
     @Test
     public void testCreate3() {
-        ClassesAnalyzer sut = new ClassesAnalyzer(3,2);
+        ClassesAnalyzer sut = new ClassesAnalyzer(3,1);
         Class classz = Test2.class;
         IExecutable item = sut.create(classz, classz, 3);
         ExecutableSequence c = (ExecutableSequence) item;

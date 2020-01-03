@@ -4,29 +4,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import edu.ktu.atg.common.executables.ExecutableSequence;
 import edu.ktu.atg.common.executables.IExecutable;
 import edu.ktu.atg.common.execution.CandidateSolution;
 
 public class CrossoverOperator implements IOperator {
 
-    private CandidateSolution[] candidateSolutions;
+    private final CandidateSolution[] candidateSolutions;
+
+    private final List<CandidateSolution> newSolutions = new LinkedList<>();
 
     public CrossoverOperator(CandidateSolution... candidateSolutions) {
         this.candidateSolutions = candidateSolutions;
-
     }
 
-    List<CandidateSolution> newSolutions = new LinkedList<>();
-
     @Override
-    public List<CandidateSolution> getData() {
+    public List<CandidateSolution> getSolutions() {
         return newSolutions;
-
     }
 
     @Override
-    public CrossoverOperator work() {
+    public CrossoverOperator invoke() {
         for (int i = 0; i < candidateSolutions.length; i++) {
             CandidateSolution f = candidateSolutions[ThreadLocalRandom.current().nextInt(candidateSolutions.length)];
             CandidateSolution s = candidateSolutions[ThreadLocalRandom.current().nextInt(candidateSolutions.length)];
@@ -47,7 +44,7 @@ public class CrossoverOperator implements IOperator {
                 n.sequence.getWriters().add(s.getSequence().getWriters().get(0).copy());
                 newSolutions.add(n);
             }
-            // add all from another 
+            // add all from another
             if (!f.sequence.getWriters().isEmpty()) {
                 CandidateSolution n = new CandidateSolution();
                 n.sequence = s.sequence.copy();
