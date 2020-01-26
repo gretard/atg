@@ -6,30 +6,35 @@ import java.util.List;
 
 public final class MethodInfo implements Serializable {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -5307557043879042835L;
-    private final String name;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5307557043879042835L;
+	private final String name;
 
-    private final List<ExecutableStatement> statements = new ArrayList<ExecutableStatement>();
+	private final List<ExecutableStatement> statements = new ArrayList<>();
 
-    private final List<MethodBranch> branches = new ArrayList<MethodBranch>();
+	private final List<MethodBranch> branches = new ArrayList<>();
+	private final List<ParamInfo> parameters = new ArrayList<>();
 
-    public List<MethodBranch> getBranches() {
-        return branches;
-    }
+	public List<ParamInfo> getParameters() {
+		return parameters;
+	}
 
-    public List<ExecutableStatement> getStatements() {
-        return statements;
-    }
+	public List<MethodBranch> getBranches() {
+		return branches;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public List<ExecutableStatement> getStatements() {
+		return statements;
+	}
 
-    public MethodInfo(String name) {
-        this.name = name;
+	public String getName() {
+		return name;
+	}
 
-    }
+	public MethodInfo(String name) {
+		this.name = name;
+
+	}
 }

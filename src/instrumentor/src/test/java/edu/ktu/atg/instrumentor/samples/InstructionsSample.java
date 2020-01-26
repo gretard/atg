@@ -10,11 +10,20 @@ public class InstructionsSample {
 	public void checkVoid() {
 		x++;
 	}
-
+	private void test() {
+		x++;
+	}
+	
+	private void testArr(int[] arr) {
+		arr[0] = 1;
+		x++;
+	}
 	public int checkBranch(int x) {
 		if (x > 0) {
 			return 0;
 		}
+		test();
+		testArr(null);
 		return this.x;
 	}
 
