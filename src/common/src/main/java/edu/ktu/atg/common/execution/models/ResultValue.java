@@ -61,9 +61,11 @@ public class ResultValue {
 
 		if (item instanceof ExecutableArray) {
 			int len = Array.getLength(value);
-			if (len > 10) {
+			// TODO add support for multi dimensional arrays
+			if (value.getClass().getName().contains("[[") || len > 10) {
 				return Arrays.asList(new ResultValue(item, CheckType.LEN, len));
 			}
+
 			return Arrays.asList(new ResultValue(item, CheckType.ARRAY, value));
 
 		}

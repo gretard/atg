@@ -1,5 +1,6 @@
 package edu.ktu.atg.outputter;
 
+import java.lang.reflect.Array;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,6 +11,8 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.ArrayCreationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.AssignExpr.Operator;
 import com.github.javaparser.ast.expr.Expression;
@@ -19,12 +22,14 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
+import edu.ktu.atg.common.executables.ExecutableArray;
 import edu.ktu.atg.common.executables.ExecutableFieldWriter;
 import edu.ktu.atg.common.executables.ExecutableValue;
 import edu.ktu.atg.common.executables.ExecutableVoid;
@@ -141,19 +146,21 @@ public class JunitTestsGenerator {
 		// generate assertions
 		executionData.getExecutedPairs().forEach(pair -> {
 
-			IExecutable item = pair.getItem();
+			IExecutable executablePair = pair.getItem();
 
-			if (!executionData.getResults().containsKey(item.getId()) || !generated.contains(item.getId())) {
+			if (!executionData.getResults().containsKey(executablePair.getId())
+					|| !generated.contains(executablePair.getId())) {
 				return;
 			}
-			List<ResultValue> vals = executionData.getResults().get(item.getId());
-			String name = context.getNames().get(item.getId());
+			List<ResultValue> vals = executionData.getResults().get(executablePair.getId());
+			String name = context.getNames().get(executablePair.getId());
 			vals.forEach(v -> {
 				CheckType type = v.getCheckType();
 				Expression ex = null;
+				IExecutable item = v.getItem();
 				switch (type) {
 				case SIMPLE: {
-					if (!(v.getItem() instanceof ExecutableValue)) {
+					if (!(item instanceof ExecutableValue)) {
 						break;
 					}
 					ExecutableValue value = (ExecutableValue) v.getItem();
@@ -177,14 +184,45 @@ public class JunitTestsGenerator {
 					ex = exp;
 					break;
 				}
-				/*case ARRAY: {
-					MethodCallExpr exp = new MethodCallExpr(new NameExpr("org.junit.Assert"), "assertEquals");
-					exp.addArgument(new StringLiteralExpr(String.format("Expected item %s to be NOT null", name)));
+				case ARRAY: {
+					if (!(item instanceof ExecutableArray)) {
+						break;
+					}
+
+					IExecutable componentType = ((ExecutableArray) item).getComponentType();
+					if (!(componentType instanceof ExecutableValue)) {
+						break;
+					}
+					MethodCallExpr exp = new MethodCallExpr(new NameExpr("org.junit.Assert"), "assertArrayEquals");
+					Object values = v.getValue();
+
+					ArrayInitializerExpr e = new ArrayInitializerExpr();
+					ArrayCreationExpr cr = new ArrayCreationExpr();
+					cr.setElementType(GenerationHelper.generateNameIfArray(item));
+					cr.setInitializer(e);
+
+					for (int i = 0; i < Array.getLength(values); i++) {
+
+						Object objValue = Array.get(values, i);
+						if (objValue == null) {
+							exp.addArgument(GenerationHelper.castTo(GenerationHelper.generateType(componentType),
+									new NullLiteralExpr()));
+							continue;
+						}
+						e.getValues().add(GenerationHelper.executableValueToNode((ExecutableValue) componentType,
+								objValue.toString()));
+
+					}
+
+					exp.addArgument(cr);
 					exp.addArgument(name);
 					ex = exp;
 					break;
-				}*/
+				}
 				case LEN: {
+					if (!(item instanceof ExecutableArray)) {
+						break;
+					}
 					MethodCallExpr exp = new MethodCallExpr(new NameExpr("org.junit.Assert"), "assertEquals");
 					exp.addArgument(new IntegerLiteralExpr(v.getValue().toString()));
 					exp.addArgument(new FieldAccessExpr(new NameExpr(name), "length"));
