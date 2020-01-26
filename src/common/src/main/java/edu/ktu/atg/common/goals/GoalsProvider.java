@@ -14,10 +14,13 @@ public class GoalsProvider {
 		List<IGoal> primary = new LinkedList<IGoal>();
 		List<IGoal> secondary = new LinkedList<IGoal>();
 		for (MethodBranch branchToHit : ci.getAllbranches()) {
-			// TODO check if numeric or boolean
-			primary.add(new BranchHitGoal(branchToHit, DistanceCheckType.HITMAX));
+			if (branchToHit.isSimple()) {
+				primary.add(new BranchHitGoal(branchToHit, DistanceCheckType.HITMAX));
+				primary.add(new BranchHitGoal(branchToHit, DistanceCheckType.UNHITMAX));
+				continue;
+			}
+
 			primary.add(new BranchHitGoal(branchToHit, DistanceCheckType.HITMIN));
-			primary.add(new BranchHitGoal(branchToHit, DistanceCheckType.UNHITMAX));
 			primary.add(new BranchHitGoal(branchToHit, DistanceCheckType.UNHITMIN));
 		}
 		List<ExecutableStatement> throwsStatements = new LinkedList<>();

@@ -18,6 +18,26 @@ public class InstructionsSample {
 		arr[0] = 1;
 		x++;
 	}
+	public void check(int a, Object c, boolean b, Integer a2) {
+		if (c instanceof String) {
+			System.out.println("OK");
+			return;
+		}
+		if (a > 10) {
+			return;
+		}
+		if (b) {
+			System.out.println("Bool");
+			return;
+		}
+		if (a2> 100) {
+			return;
+		}
+		if (c == null) {
+			System.out.println("NULL");
+			return;
+		}
+	}
 	public int checkBranch(int x) {
 		if (x > 0) {
 			return 0;
@@ -40,5 +60,5 @@ public class InstructionsSample {
 			break;
 		}
 		return this.x;
-	}
+	} 
 }

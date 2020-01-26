@@ -24,7 +24,10 @@ public class SootInstrumenterTest {
 		request.outputFormat = "d";
 		SootInstrumenterResponse response = sut.instrument(request);
 		ClasszInfo ci = response.getClasses().get(className);
-		for (MethodInfo mi : ci.getMethods().values()) {
+		for (MethodBranch st : ci.getAllbranches()) {
+			System.out.println(st.getExpression() + " " + st.getLeftType() + " " + st.getRightType());
+		}
+	/*	for (MethodInfo mi : ci.getMethods().values()) {
 			System.out.println(mi.getName());
 			for (ExecutableStatement st : mi.getStatements()) {
 				System.out.println(st.getName() + " " + st.getExpression() + " " + st.getType());
@@ -32,7 +35,7 @@ public class SootInstrumenterTest {
 			for (MethodBranch st : mi.getBranches()) {
 				System.out.println(st.getExpression() + " " + st.getLeftType() + " " + st.getRightType());
 			}
-		}
+		}*/
 		
 
 	}
