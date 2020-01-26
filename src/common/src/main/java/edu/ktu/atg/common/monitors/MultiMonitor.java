@@ -4,10 +4,12 @@ import edu.ktu.atg.common.execution.SolutionExecutionData;
 
 public enum MultiMonitor implements IBaseMonitor {
 	INSTANCE;
-	private final IBaseMonitor[] monitors = { ValuesMonitor.INSTANCE, BranchesMonitor.INSTANCE };
+
+	private final IBaseMonitor[] monitors = { ValuesMonitor.INSTANCE, BranchesMonitor.INSTANCE,
+			ParamsMonitor.INSTANCE };
 
 	@Override
-	public synchronized void  clear() {
+	public synchronized void clear() {
 		for (IBaseMonitor monitor : monitors) {
 			monitor.clear();
 		}

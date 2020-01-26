@@ -86,4 +86,17 @@ public class SolutionExecutionData {
 
     private final List<HitStatement> statements = new LinkedList<>();
     private final List<HitStatement> statementWithValues = new LinkedList<>();
+    private final List<HitStatement> preValues = new LinkedList<>();
+    public List<HitStatement> getPreValues() {
+		return preValues;
+	}
+
+	public List<HitStatement> getPostValues() {
+		return postValues;
+	}
+
+	private final List<HitStatement> postValues = new LinkedList<>();
+
+	
+
 }

@@ -27,7 +27,11 @@ public final class ClasszInfo implements Serializable {
         methods.forEach((k, m) -> statements.addAll(m.getStatements()));
         return statements;
     }
-
+    public List<ParamInfo> getParams() {
+        final List<ParamInfo> statements = new ArrayList<>();
+        methods.forEach((k, m) -> statements.addAll(m.getParameters()));
+        return statements;
+    }
     public Map<String, MethodInfo> getMethods() {
         return methods;
     }

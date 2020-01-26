@@ -106,7 +106,7 @@ public class OptionsRequest {
         this.mode = mode;
     }
 
-    @Argument(description = "Flag which mode to use, 1 - GA, 2 - SIMPLE, 3 - INSTRUMENT ONLY")
+    @Argument(description = "Flag which mode to use, 1 - GA, 2 - SIMPLE, 3 - INSTRUMENT ONLY, 4 - INSTRUMENT TO JAVA")
     private Integer mode = 1;
 
     @Argument(description = "Flag whether to store intermiadiate results")

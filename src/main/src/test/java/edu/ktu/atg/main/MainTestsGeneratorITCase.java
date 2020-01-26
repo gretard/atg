@@ -19,7 +19,7 @@ public class MainTestsGeneratorITCase {
 	@Test
 	public void testGenerate() throws Throwable {
 		OptionsRequest request = new OptionsRequest();
-		// request.setClasses(new String[] { "edu.ktu.atg.example.Calculator" });
+		 request.setClasses(new String[] { "edu.ktu.atg.example.Sorter" });
 		request.setClassesDir(new String[] { "../example/target/classes" });
 		request.setResultsDir("../example/src/test/java");
 		request.setUseTimestampedReports(false);

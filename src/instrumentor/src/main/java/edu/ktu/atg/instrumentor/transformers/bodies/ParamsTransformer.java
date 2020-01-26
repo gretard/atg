@@ -5,7 +5,7 @@ import java.util.List;
 
 import edu.ktu.atg.common.models.MethodInfo;
 import edu.ktu.atg.common.models.ParamInfo;
-import edu.ktu.atg.common.monitors.ValuesMonitor;
+import edu.ktu.atg.common.monitors.ParamsMonitor;
 import edu.ktu.atg.instrumentor.transformers.Transformation;
 import soot.ArrayType;
 import soot.Body;
@@ -29,9 +29,9 @@ import soot.jimple.StringConstant;
  *
  */
 public class ParamsTransformer extends BaseTransformer implements Transformer {
-	private final String monitorClass = ValuesMonitor.class.getName();
-	private final String monitorMethod = "hitWithValue";
-	private final String monitorMethodPost = "hitWithValuePost";
+	private final String monitorClass = ParamsMonitor.class.getName();
+	private final String monitorMethod = "pre";
+	private final String monitorMethodPost = "post";
 
 	private final String monitorClassField = "INSTANCE";
 
@@ -42,7 +42,7 @@ public class ParamsTransformer extends BaseTransformer implements Transformer {
 		if (current instanceof IdentityStmt) {
 			return;
 		}
-		
+
 		final MethodInfo methodInfo = context.methodInfo;
 		final String methodName = context.methodInfo.getName();
 		final Body body = context.body;
