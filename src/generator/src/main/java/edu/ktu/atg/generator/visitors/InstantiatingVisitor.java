@@ -3,6 +3,7 @@ package edu.ktu.atg.generator.visitors;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +26,7 @@ import edu.ktu.atg.common.executables.IVisitor;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
 import edu.ktu.atg.common.execution.models.DefinedValue;
 import edu.ktu.atg.common.execution.models.DefinedValue.ValueState;
+import edu.ktu.atg.common.helpers.DumpUtilities;
 import edu.ktu.atg.common.execution.models.ExecutablePair;
 import edu.ktu.atg.common.execution.models.ResultValue;
 import net.bytebuddy.ByteBuddy;
@@ -34,255 +36,267 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 public class InstantiatingVisitor implements IVisitor<Object> {
 
-    private final Map<String, Object> cache = new HashMap<>();
+	private final Map<String, Object> cache = new HashMap<>();
 
-    private final List<ExecutablePair> pairs;
+	private final List<ExecutablePair> pairs;
 
-    private final Map<String, DefinedValue> values;
-    private final Map<String, List<ResultValue>> results;
+	private final Map<String, DefinedValue> values;
+	private final Map<String, List<ResultValue>> results;
 
-    private final ClassLoader loader;
+	private final ClassLoader loader;
 
-    public InstantiatingVisitor(SolutionExecutionData trace, ClassLoader loader) {
-        this.loader = loader;
-        this.values = trace.getDefinedValues();
-        this.pairs = trace.getExecutedPairs();
-        this.results = trace.getResults();
-    }
+	public InstantiatingVisitor(SolutionExecutionData trace, ClassLoader loader) {
+		this.loader = loader;
+		this.values = trace.getDefinedValues();
+		this.pairs = trace.getExecutedPairs();
+		this.results = trace.getResults();
+	}
 
-    public InstantiatingVisitor(SolutionExecutionData trace) {
-        this.values = trace.getDefinedValues();
-        this.pairs = trace.getExecutedPairs();
-        this.results = trace.getResults();
-        this.loader = this.getClass().getClassLoader();
-    }
+	public InstantiatingVisitor(SolutionExecutionData trace) {
+		this.values = trace.getDefinedValues();
+		this.pairs = trace.getExecutedPairs();
+		this.results = trace.getResults();
+		this.loader = this.getClass().getClassLoader();
+	}
 
-    public InstantiatingVisitor() {
-        this.values = new HashMap<>();
-        this.pairs = new LinkedList<>();
-        this.results = new HashMap<>();
-        this.loader = this.getClass().getClassLoader();
+	public InstantiatingVisitor() {
+		this.values = new HashMap<>();
+		this.pairs = new LinkedList<>();
+		this.results = new HashMap<>();
+		this.loader = this.getClass().getClassLoader();
 
-    }
+	}
 
-    public Map<String, Object> getCache() {
-        return cache;
-    }
+	public Map<String, Object> getCache() {
+		return cache;
+	}
 
-    public Object execute(IExecutable item, IExecutable root) throws Throwable {
-        if (item == null && root == null) {
-            return null;
-        }
-    
-        if (cache.containsKey(item.getId())) {
-            return cache.get(item.getId());
-        }
-        if (!values.containsKey(item.getId())) {
-            values.put(item.getId(), DefinedValue.createExecutable(item));
-        }
-        DefinedValue definedValue = values.get(item.getId());
+	public Object execute(IExecutable item, IExecutable root) throws Throwable {
+		if (item == null && root == null) {
+			return null;
+		}
 
-        if (definedValue.getState() == ValueState.SKIP) {
-            return null;
-        }
-        Object returnValue = null;
+		if (cache.containsKey(item.getId())) {
+			return cache.get(item.getId());
+		}
+		if (!values.containsKey(item.getId())) {
+			values.put(item.getId(), DefinedValue.createExecutable(item));
+		}
+		DefinedValue definedValue = values.get(item.getId());
 
-        try {
-           
-            if (definedValue.getState() == ValueState.REF) {
-                returnValue = execute(definedValue.getRef(), root);
+		if (definedValue.getState() == ValueState.SKIP) {
+			return null;
+		}
+		Object returnValue = null;
 
-            } else {
-                returnValue = definedValue.getState() == ValueState.FIXED ? definedValue.getValue()
-                        : item.accept(root, this);
-            }
+		try {
 
-            if (item instanceof IExecutableWithReturnValue) {
-                IExecutable returnValueDefinition = ((IExecutableWithReturnValue) item).getReturnValue();
-                this.cache.put(returnValueDefinition.getId(), returnValue);
-                this.cache.put(item.getId(), returnValue);
-                List<ResultValue> results = ResultValue.fromValue(returnValueDefinition, returnValue);
-                List<ResultValue> savedResults = this.results.getOrDefault(returnValueDefinition.getId(),
-                        new LinkedList<ResultValue>());
-                savedResults.addAll(results);
-                this.results.put(item.getId(), savedResults);
-                this.pairs.add(ExecutablePair.ok(root, item, returnValueDefinition));
-            } else {
-                pairs.add(ExecutablePair.ok(root, item, null));
-                cache.put(item.getId(), returnValue);
-            }
-        } catch (Throwable e) {
-            pairs.add(ExecutablePair.ko(root, item, null));
-            throw e;
-        }
+			if (definedValue.getState() == ValueState.REF) {
+				returnValue = execute(definedValue.getRef(), root);
 
-        return returnValue;
-    }
+			} else {
+				returnValue = definedValue.getState() == ValueState.FIXED ? definedValue.getValue()
+						: item.accept(root, this);
+			}
 
-    @Override
-    public Object visit(ExecutableConstructor item, IExecutable root) throws Throwable {
+			if (item instanceof IExecutableWithReturnValue) {
+				IExecutable returnValueDefinition = ((IExecutableWithReturnValue) item).getReturnValue();
+				this.cache.put(returnValueDefinition.getId(), returnValue);
 
-        List<Object> values = new LinkedList<Object>();
-        for (IExecutable p : item.getParameters()) {
-            Object value = execute(p, item);
-            values.add(value);
-        }
-        return item.getConstructor().newInstance(values.toArray());
+				List<ResultValue> results = ResultValue.fromValue(returnValueDefinition, returnValue);
+				List<ResultValue> savedResults = this.results.getOrDefault(returnValueDefinition.getId(),
+						new LinkedList<ResultValue>());
+				savedResults.addAll(results);
+				this.results.put(item.getId(), savedResults);
+				this.pairs.add(ExecutablePair.ok(root, item, returnValueDefinition));
+			}
 
-    }
+			else {
 
-    @Override
-    public Object visit(ExecutableAbstractClassz item, IExecutable root) throws Throwable {
+				if (item instanceof ExecutableArray) {
+					List<ResultValue> results = ResultValue.fromValue(item, returnValue);
 
-        List<Object> arguments = new LinkedList<Object>();
-        for (IExecutable p : item.getParameters()) {
-            Object value = execute(p, item);
-            arguments.add(value);
-        }
-        Builder<?> buddy = mockMethods(item, this, item.getMethodsToImplement());
-        Class<?> dynamicType = buddy.make().load(loader).getLoaded();
+					List<ResultValue> savedResults = this.results.getOrDefault(item.getId(),
+							new LinkedList<ResultValue>());
+					savedResults.addAll(results);
+					this.results.put(item.getId(), savedResults);
+				}
 
-        return dynamicType.getConstructor(item.getConstructor().getParameterTypes()).newInstance(arguments.toArray());
+				pairs.add(ExecutablePair.ok(root, item, null));
+			}
+			this.cache.put(item.getId(), returnValue);
+		} catch (Throwable e) {
+			pairs.add(ExecutablePair.ko(root, item, null));
+			throw e;
+		}
 
-    }
+		return returnValue;
+	}
 
-    private static Builder<?> mockMethods(final IExecutable root, final InstantiatingVisitor visitor,
-            final ExecutableAbstractMethod[] methods) throws Throwable {
-        final List<Method> mockecMethods = new LinkedList<>();
-        final Map<String, ExecutableAbstractMethod> methodsMap = new HashMap<>();
-        for (ExecutableAbstractMethod m : methods) {
-            methodsMap.put(m.getMethod().toGenericString(), m);
-            mockecMethods.add(m.getMethod());
-            visitor.execute(m, root);
-        }
-        return new ByteBuddy().subclass(root.getClassz())
-                .method(ElementMatchers.anyOf(mockecMethods.toArray(new Method[0])))
+	@Override
+	public Object visit(ExecutableConstructor item, IExecutable root) throws Throwable {
 
-                .intercept(InvocationHandlerAdapter.of(new InvocationHandler() {
+		List<Object> values = new LinkedList<Object>();
+		for (IExecutable p : item.getParameters()) {
+			Object value = execute(p, item);
+			values.add(value);
+		}
+		return item.getConstructor().newInstance(values.toArray());
 
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        return visitor.execute(methodsMap.get(method.toGenericString()), root);
-                    };
-                }));
+	}
 
-    }
+	@Override
+	public Object visit(ExecutableAbstractClassz item, IExecutable root) throws Throwable {
 
-    @Override
-    public Object visit(final ExecutableInterface item, IExecutable root) throws Throwable {
-        Builder<?> buddy = mockMethods(item, this, item.getMethodsToImplement());
-        Class<?> dynamicType = buddy.make().load(this.loader).getLoaded();
-        return dynamicType.getConstructor().newInstance();
-    }
+		List<Object> arguments = new LinkedList<Object>();
+		for (IExecutable p : item.getParameters()) {
+			Object value = execute(p, item);
+			arguments.add(value);
+		}
+		Builder<?> buddy = mockMethods(item, this, item.getMethodsToImplement());
+		Class<?> dynamicType = buddy.make().load(loader).getLoaded();
 
-    @Override
-    public Object visit(ExecutableArray item, IExecutable root) throws Throwable {
-        DefinedValue definedValue = this.values.getOrDefault(item.getId(), DefinedValue.createExecutable(item));
-        // If array has not been executed yet and is not fixed
-        if (definedValue.getState() == ValueState.EXECUTABLE) {
-            int l = 3;
-            final Object object = Array.newInstance(item.getClassz().getComponentType(), l);
-            List<IExecutable> children = new LinkedList<>();
-            for (int i = 0; i < l; i++) {
-                IExecutable child = item.copyChild();
-                Object value = this.execute(child, item);
-                children.add(child);
-                Array.set(object, i, value);
-            }
-            this.values.put(item.getId(), DefinedValue.createExecutableArr(item, children.toArray(new IExecutable[0])));
-            return object;
-        }
-        IExecutable[] children = definedValue.getChildren();
-        final Object object = Array.newInstance(item.getClassz().getComponentType(), children.length);
-        for (int i = 0; i < children.length; i++) {
-            IExecutable child = children[i];
-            Object value = this.execute(child, item);
-            Array.set(object, i, value);
-        }
-        return object;
+		return dynamicType.getConstructor(item.getConstructor().getParameterTypes()).newInstance(arguments.toArray());
 
-    }
+	}
 
-    @Override
-    public Object visit(ExecutableSequence item, IExecutable root) throws Throwable {
-        
-        Object rootValue = null;
-        if (item.getRoot() != null) {
-            rootValue = execute(item.getRoot(), root);
-        }
-        for (IExecutable p : item.getStaticWriters()) {
-            try {
-                execute(p, item.getReturnValue());
-            } catch (Throwable e) {
-            }
-        }
-        for (IExecutable p : item.getWriters()) {
-            try {
-                execute(p, item.getReturnValue());
-            } catch (Throwable e) {
-                e.printStackTrace();
-                throw e;
-            }
-        }
-        for (IExecutable p : item.getObservers()) {
-            try {
-                execute(p, item.getReturnValue());
-            } catch (Throwable e) {
-                // e.printStackTrace();
-            }
-        }
-        return rootValue;
-    }
+	private static Builder<?> mockMethods(final IExecutable root, final InstantiatingVisitor visitor,
+			final ExecutableAbstractMethod[] methods) throws Throwable {
+		final List<Method> mockecMethods = new LinkedList<>();
+		final Map<String, ExecutableAbstractMethod> methodsMap = new HashMap<>();
+		for (ExecutableAbstractMethod m : methods) {
+			methodsMap.put(m.getMethod().toGenericString(), m);
+			mockecMethods.add(m.getMethod());
+			visitor.execute(m, root);
+		}
+		return new ByteBuddy().subclass(root.getClassz())
+				.method(ElementMatchers.anyOf(mockecMethods.toArray(new Method[0])))
 
-    @Override
-    public Object visit(ExecutableValue item, IExecutable root) throws Throwable {
-        Object value = item.getType().getDefaultValue();
-        this.values.put(item.getId(), DefinedValue.createFixed(item, value));
-        return value;
-    }
+				.intercept(InvocationHandlerAdapter.of(new InvocationHandler() {
 
-    @Override
-    public Object visit(ExecutableAbstractMethod item, IExecutable root) throws Throwable {
-        return execute(item.getReturnValue(), item);
-    }
+					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+						return visitor.execute(methodsMap.get(method.toGenericString()), root);
+					};
+				}));
 
-    @Override
-    public Object visit(ExecutableMethod item, IExecutable root) throws Throwable {
-        Object rootValue = null;
-        if (!item.isStatic()) {
-          
-            rootValue = execute(root, null);
-        }
-        List<Object> values = new LinkedList<Object>();
-        for (IExecutable p : item.getParameters()) {
-            Object value = execute(p, item);
-            values.add(value);
-        }
-        return item.getMethod().invoke(rootValue, values.toArray());
-    }
+	}
 
-    @Override
-    public Object visit(ExecutableFieldWriter item, IExecutable root) throws Throwable {
-        Object rootValue = null;
-        if (!item.isStatic()) {
-            rootValue = execute(root, null);
-        }
-        Object value = execute(item.getInputValue(), item);
-        item.getField().set(rootValue, value);
-        return value;
-    }
+	@Override
+	public Object visit(final ExecutableInterface item, IExecutable root) throws Throwable {
+		Builder<?> buddy = mockMethods(item, this, item.getMethodsToImplement());
+		Class<?> dynamicType = buddy.make().load(this.loader).getLoaded();
+		return dynamicType.getConstructor().newInstance();
+	}
 
-    @Override
-    public Object visit(ExecutableFieldObserver item, IExecutable root) throws Throwable {
-        Object rootValue = null;
-        if (!item.isStatic()) {
-            rootValue = execute(root, null);
-        }
-        return item.getField().get(rootValue);
-    }
+	@Override
+	public Object visit(ExecutableArray item, IExecutable root) throws Throwable {
+		DefinedValue definedValue = this.values.getOrDefault(item.getId(), DefinedValue.createExecutable(item));
+		// If array has not been executed yet and is not fixed
+		if (definedValue.getState() == ValueState.EXECUTABLE) {
+			int l = 3;
+			final Object object = Array.newInstance(item.getClassz().getComponentType(), l);
+			List<IExecutable> children = new LinkedList<>();
+			for (int i = 0; i < l; i++) {
+				IExecutable child = item.copyChild();
+				Object value = this.execute(child, item);
+				children.add(child);
+				Array.set(object, i, value);
+			}
+			this.values.put(item.getId(), DefinedValue.createExecutableArr(item, children.toArray(new IExecutable[0])));
+			return object;
+		}
+		IExecutable[] children = definedValue.getChildren();
+		final Object object = Array.newInstance(item.getClassz().getComponentType(), children.length);
+		for (int i = 0; i < children.length; i++) {
+			IExecutable child = children[i];
+			Object value = this.execute(child, item);
+			Array.set(object, i, value);
+		}
+		return object;
 
-    @Override
-    public Object visit(ExecutableEnum item, IExecutable root) throws Throwable {
-        return item.getClassz().getEnumConstants()[0];
-    }
+	}
+
+	@Override
+	public Object visit(ExecutableSequence item, IExecutable root) throws Throwable {
+
+		Object rootValue = null;
+		if (item.getRoot() != null) {
+			rootValue = execute(item.getRoot(), root);
+		}
+		for (IExecutable p : item.getStaticWriters()) {
+			try {
+				execute(p, item.getReturnValue());
+			} catch (Throwable e) {
+			}
+		}
+		for (IExecutable p : item.getWriters()) {
+			try {
+				execute(p, item.getReturnValue());
+			} catch (Throwable e) {
+				e.printStackTrace();
+				throw e;
+			}
+		}
+		for (IExecutable p : item.getObservers()) {
+			try {
+				execute(p, item.getReturnValue());
+			} catch (Throwable e) {
+				// e.printStackTrace();
+			}
+		}
+		return rootValue;
+	}
+
+	@Override
+	public Object visit(ExecutableValue item, IExecutable root) throws Throwable {
+		Object value = item.getType().getDefaultValue();
+		this.values.put(item.getId(), DefinedValue.createFixed(item, value));
+		return value;
+	}
+
+	@Override
+	public Object visit(ExecutableAbstractMethod item, IExecutable root) throws Throwable {
+		return execute(item.getReturnValue(), item);
+	}
+
+	@Override
+	public Object visit(ExecutableMethod item, IExecutable root) throws Throwable {
+		Object rootValue = null;
+		if (!item.isStatic()) {
+
+			rootValue = execute(root, null);
+		}
+		List<Object> values = new LinkedList<Object>();
+		for (IExecutable p : item.getParameters()) {
+			Object value = execute(p, item);
+			values.add(value);
+		}
+		return item.getMethod().invoke(rootValue, values.toArray());
+	}
+
+	@Override
+	public Object visit(ExecutableFieldWriter item, IExecutable root) throws Throwable {
+		Object rootValue = null;
+		if (!item.isStatic()) {
+			rootValue = execute(root, null);
+		}
+		Object value = execute(item.getInputValue(), item);
+		item.getField().set(rootValue, value);
+		return value;
+	}
+
+	@Override
+	public Object visit(ExecutableFieldObserver item, IExecutable root) throws Throwable {
+		Object rootValue = null;
+		if (!item.isStatic()) {
+			rootValue = execute(root, null);
+		}
+		return item.getField().get(rootValue);
+	}
+
+	@Override
+	public Object visit(ExecutableEnum item, IExecutable root) throws Throwable {
+		return item.getClassz().getEnumConstants()[0];
+	}
 
 }
