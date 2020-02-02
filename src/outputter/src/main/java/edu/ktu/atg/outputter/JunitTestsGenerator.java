@@ -39,6 +39,7 @@ import edu.ktu.atg.common.executables.ValueType;
 import edu.ktu.atg.common.execution.CandidateSolution;
 import edu.ktu.atg.common.execution.GenerationData;
 import edu.ktu.atg.common.execution.SolutionExecutionData;
+import edu.ktu.atg.common.execution.models.ExecutablePair;
 import edu.ktu.atg.common.execution.models.ResultValue;
 import edu.ktu.atg.common.execution.models.ResultValue.CheckType;
 import edu.ktu.atg.common.models.ClasszInfo;
@@ -101,27 +102,35 @@ public class JunitTestsGenerator {
 
 		List<String> generated = new LinkedList<>();
 		// generate final statement invocations
-		executionData.getExecutedPairs().forEach(pair -> {
+		boolean shouldStop = false;
+		for (ExecutablePair pair : executionData.getExecutedPairs()) {
 			IExecutable item = pair.getItem();
 			IExecutable returnValue = pair.getReturnValue();
-
+			if (shouldStop) {
+				break;
+			}
+			if (!pair.isOk) {
+				shouldStop = true;
+			}
 			if (!context.getStatements().containsKey(item.getId()) || context.canBeInlined(item)
 					|| generated.contains(item.getId())) {
-				return;
+				continue;
 			}
+			
+		
+			
 			generated.add(item.getId());
 			Node right = context.getStatements().get(item.getId());
 			String name = context.getNames().getOrDefault(item.getId(), null);
-			if (returnValue != null) {
-				// name = context.getNames().getOrDefault(returnValue.getId(), null);
-			}
+
+			
 			if (item instanceof ExecutableFieldWriter) {
 				Node right0 = context.getStatements().get(((ExecutableFieldWriter) item).getInputValue().getId());
 				AssignExpr assignEx = new AssignExpr((Expression) right, (Expression) right0, Operator.ASSIGN);
 				ExpressionStmt ex = new ExpressionStmt(assignEx);
 				context.getFinalStatements().add(ex);
 
-				return;
+				continue;
 			}
 
 			if (item instanceof IExecutableWithReturnValue) {
@@ -134,7 +143,7 @@ public class JunitTestsGenerator {
 				} else {
 					context.getFinalStatements().add(new ExpressionStmt((Expression) right));
 				}
-				return;
+				continue;
 			}
 			VariableDeclarationExpr vd = new VariableDeclarationExpr(
 					new VariableDeclarator(GenerationHelper.generateType(item), name, (Expression) right));
@@ -142,7 +151,10 @@ public class JunitTestsGenerator {
 			ExpressionStmt ex = new ExpressionStmt(vd);
 			context.getFinalStatements().add(ex);
 
-		});
+		}
+		if (shouldStop) {
+			return context;
+		}
 		// generate assertions
 		executionData.getExecutedPairs().forEach(pair -> {
 
