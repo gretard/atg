@@ -26,13 +26,16 @@ public class OutputContext {
     private final Map<String, Integer> counts = new HashMap<>();
 
     public boolean canBeInlined(IExecutable item) {
+    	 if (item.getClassz() == void.class || item.getClassz() == Void.class) {
+         	return true;
+         }
         if (item instanceof ExecutableAbstractMethod) {
             return true;
         }
         if (item instanceof IExecutableWithReturnValue || item instanceof ExecutableFieldWriter) {
             return false;
         }
-
+       
         return counts.getOrDefault(item.getId(), 1) <= 1;
     }
 
